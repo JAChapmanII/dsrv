@@ -70,6 +70,13 @@ void main(string[] args) {
 	if(name.length > 0)
 		mBody.add((new Paragrah()).content = "Hello there, " ~ name ~ "!");
 
+	mBody.add((new Paragrah()).content =
+			"This is roughly 80 lines of D code, not counting the rather" ~
+			" hackish reimplementation of the whole XML library. I think by" ~
+			" using that, it can be cut down even more. D is really awesome," ~
+			" the only detriment to using it is the fact that the compiled" ~
+			" binary is ~1MiB O.o");
+
 		mHTML.add(mBody);
 	mHTML.print();
 }
