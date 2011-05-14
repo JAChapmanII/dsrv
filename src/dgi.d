@@ -2,11 +2,16 @@ import std.stdio;
 import std.process;
 import std.array;
 import std.conv;
+import std.uri;
 
 import tag;
 
 void main(string[] args) {
 	writeln("Content-type: text/html\n");
+	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
+		"<!DOCTYPE html\n" ~
+			"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
+			"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
 
 	HTML mHTML = new HTML();
 		Head mHead = new Head();
@@ -23,7 +28,7 @@ void main(string[] args) {
 	string[string] fieldMap;
 	string queryString = getenv("QUERY_STRING");
 	if(queryString.length > 0) {
-		string sanitized = replace(queryString, "&", "&amp;");
+		string sanitized = decodeComponent(replace(queryString, "&", "&amp;"));
 		mBody.add((new Paragrah()).content =
 				"QUERY_STRING: " ~ sanitized);
 
@@ -34,9 +39,9 @@ void main(string[] args) {
 		foreach(token; tokens) {
 			token = replace(token, "=", " ");
 			string[] fields = split(token);
-			string key = fields[0], value;
+			string key = decodeComponent(fields[0]), value;
 			if(fields.length > 1)
-				value = fields[1];
+				value = decodeComponent(fields[1]);
 			bool insert = true;
 			if(!key.length) {
 				key = "[EMPTY]";
