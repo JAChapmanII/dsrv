@@ -1,41 +1,40 @@
 import std.stdio;
 import std.process;
 import std.array;
-import std.conv;
 import std.uri;
 
-import tag;
+import std.xml;
 
 void main(string[] args) {
 	writeln("Content-type: text/html\n");
-	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
-		"<!DOCTYPE html\n" ~
-			"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
-			"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
 
-	HTML mHTML = new HTML();
-		Head mHead = new Head();
-			mHead.add(new Meta());
-			mHead.add((new Title()).content =
-				"D CGI script!");
-		mHTML.add(mHead);
-		Body mBody = new Body();
-			mBody.add((new Heading(3)).content =
-				"Welcome to DGI!");
-			mBody.add((new Paragrah()).content =
-				"A paragrpah!");
+	Element mHTML = new Element("html");
+	mHTML.tag.attr["xmlns"] = "http://www.w3.org/1999/xhtml";
+	mHTML.tag.attr["xml:lang"] = "en";
+	mHTML.tag.attr["lang"] = "en";
+
+	Element mHead = new Element("head");
+		Element mMeta = new Element("meta");
+			mMeta.tag.attr["http-equiv"] = "Content-type";
+			mMeta.tag.attr["content"] = "text/html; charset=UTF-8";
+		mHead ~= mMeta;
+		mHead ~= new Element("title", "D CGI script");
+	mHTML ~= mHead;
+	Element mBody = new Element("body");
+		mBody ~= new Element("h3", "Welcome to DGI!");
+		mBody ~= new Element("p", "A paragraph :D !");
+	mHTML ~= mBody;
 
 	string[string] fieldMap;
 	string queryString = getenv("QUERY_STRING");
 	if(queryString.length > 0) {
 		string sanitized = decodeComponent(replace(queryString, "&", "&amp;"));
-		mBody.add((new Paragrah()).content =
-				"QUERY_STRING: " ~ sanitized);
+		mBody ~= new Element("p", "QUERY_STRING: " ~ sanitized);
 
 		queryString = replace(queryString, "&", " ");
 		string[] tokens = split(queryString);
 
-		OrderedList ol = new OrderedList();
+		Element ol = new Element("ol");
 		foreach(token; tokens) {
 			token = replace(token, "=", " ");
 			string[] fields = split(token);
@@ -54,35 +53,36 @@ void main(string[] args) {
 			if(insert)
 				fieldMap[key] = value;
 
-			ol.add((new ListElement()).content = key ~ " -&gt; " ~ value);
+			ol ~= new Element("li", key ~ " -&gt; " ~ value);
 		}
-		mBody.add(ol);
+		mBody ~= ol;
 	}
 
 	string name;
 	if(fieldMap.length > 0) {
-		mBody.add((new Paragrah()).content = "fieldMap: ");
-		UnorderedList ul = new UnorderedList();
+		mBody ~= new Element("p", "fieldMap: ");
+		Element ul = new Element("ul");
 		foreach(key; fieldMap.keys) {
 			if(key == "name")
 				name = fieldMap[key];
-			ul.add((new ListElement()).content =
-					key ~ " -&gt; " ~ fieldMap[key]);
+			ul ~= new Element("li", key ~ " -&gt; " ~ fieldMap[key]);
 		}
-		mBody.add(ul);
+		mBody ~= ul;
 	}
 
 	if(name.length > 0)
-		mBody.add((new Paragrah()).content = "Hello there, " ~ name ~ "!");
+		mBody ~= new Element("p", "Hello there, " ~ name ~ "!");
 
-	mBody.add((new Paragrah()).content =
-			"This is roughly 80 lines of D code, not counting the rather" ~
-			" hackish reimplementation of the whole XML library. I think by" ~
-			" using that, it can be cut down even more. D is really awesome," ~
+	mBody ~= new Element("p",
+			"This is roughly 90 lines of D code. D is really awesome, the" ~
 			" the only detriment to using it is the fact that the compiled" ~
 			" binary is ~1MiB O.o");
 
-		mHTML.add(mBody);
-	mHTML.print();
+	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
+		"<!DOCTYPE html\n" ~
+		"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
+		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+
+	writefln(join(mHTML.pretty(3), "\n"));
 }
 
