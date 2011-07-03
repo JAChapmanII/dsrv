@@ -1,12 +1,13 @@
 SRCDIR=src
 BINDIR=bin
+INCDIR=inc
 SOURCES=$(wildcard $(SRCDIR)/*.d)
 #HEADERS=$(wildcard $(SRCDIR)/*.hpp)
 OBJS=$(SOURCES:.d=.o)
 EXEC=dgi
 
 CC=gdmd
-CFLAGS=-od$(SRCDIR) -I$(SRCDIR)
+CFLAGS=-od$(SRCDIR) -I$(SRCDIR) -J$(INCDIR)
 
 LD=gdmd
 LFLAGS=
@@ -21,9 +22,14 @@ CFLAGS+=-w -wi
 endif
 
 ifdef release
-CFLAGS+=-O -release -noboundscheck -q,-O3,-s
+CFLAGS+=-O -release -inline -m64 -noboundscheck -q,-O3,-s
 else
 CFLAGS+=-g -debug
+endif
+
+ifdef coverage
+CFLAGS+=-cov
+LFLAGS+=-cov
 endif
 
 all: $(EXEC)
