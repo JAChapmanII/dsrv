@@ -19,16 +19,30 @@ void main(string[] args) {
 			mMeta.tag.attr["content"] = "text/html; charset=UTF-8";
 		mHead ~= mMeta;
 		mHead ~= new Element("title", "D CGI script");
+		Element mStyle = new Element("style");
+		mHead ~= mStyle;
 	mHTML ~= mHead;
-	Element mBody = new Element("body");
+	Element mTBody = new Element("body");
+		Element mBody = new Element("div");
+	mTBody ~= mBody;
+		mBody.tag.attr["class"] = "mcol";
 		mBody ~= new Element("h3", "Welcome to DGI!");
 		mBody ~= new Element("p", "A paragraph :D !");
-	mHTML ~= mBody;
+	mHTML ~= mTBody;
+
+	mStyle.tag.attr["type"] = "text/css";
+	mStyle ~= new Text(
+			".mcol { width:860px; margin:0 auto; background: #fff; " ~
+			" border: 1px solid #ccc; padding:20px }" ~
+			"h3 { text-align: center }" ~
+			"p { text-align: justify }" ~
+			"body { background: #eee }");
+
 
 	string[string] fieldMap;
 	string queryString = getenv("QUERY_STRING");
 	if(queryString.length > 0) {
-		string sanitized = decodeComponent(replace(queryString, "&", "&amp;"));
+		string sanitized = decodeComponent(queryString);
 		mBody ~= new Element("p", "QUERY_STRING: " ~ sanitized);
 
 		queryString = replace(queryString, "&", " ");
@@ -53,7 +67,7 @@ void main(string[] args) {
 			if(insert)
 				fieldMap[key] = value;
 
-			ol ~= new Element("li", key ~ " -&gt; " ~ value);
+			ol ~= new Element("li", key ~ " -> " ~ value);
 		}
 		mBody ~= ol;
 	}
@@ -65,7 +79,7 @@ void main(string[] args) {
 		foreach(key; fieldMap.keys) {
 			if(key == "name")
 				name = fieldMap[key];
-			ul ~= new Element("li", key ~ " -&gt; " ~ fieldMap[key]);
+			ul ~= new Element("li", key ~ " -> " ~ fieldMap[key]);
 		}
 		mBody ~= ul;
 	}
@@ -81,7 +95,7 @@ void main(string[] args) {
 	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
 		"<!DOCTYPE html\n" ~
 		"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
-		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 
 	writefln(join(mHTML.pretty(3), "\n"));
 }
