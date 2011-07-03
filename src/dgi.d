@@ -108,6 +108,6 @@ void main(string[] args) {
 		"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
 		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 
-	writefln(join(mHTML.pretty(3), "\n"));
+	writefln(join(mHTML.pretty(2), "\n"));
 }
 
