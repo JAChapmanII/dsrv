@@ -1,0 +1,16 @@
+DGI is a test bed for CGI stuff in the D language.
+
+Building:
+	make
+
+Running:
+	./bin/dgi
+
+	I actually deploy this on a server which is set up to redirect all
+	subdirectories in ~jac/ to this program. The URL it is currently hosted at
+	is JAChapmanII.net/~jac .
+
+	If you really want to run this on the command line, google around for how
+	to fake a CGI environment. Mainly, there are some shell variables you
+	should export to fake the POST data.
+
