@@ -1,16 +1,16 @@
 SRCDIR=src
 BINDIR=bin
 INCDIR=inc
-SOURCES=$(wildcard $(SRCDIR)/*.d)
-#HEADERS=$(wildcard $(SRCDIR)/*.hpp)
-OBJS=$(SOURCES:.d=.o)
-EXEC=dgi
+
+SRC=$(SRCDIR)/dgi.d
+OBJ=$(SRCDIR)/dgi.o
+BIN=$(BINDIR)/dgi
+INC=$(INCDIR)/style.css
 
 CC=gdmd
-CFLAGS=-od$(SRCDIR) -I$(SRCDIR) -J$(INCDIR)
 
-LD=gdmd
-LFLAGS=
+CFLAGS=-od$(SRCDIR) -I$(SRCDIR) -J$(INCDIR)
+LFLAGS=-of$(BIN)
 
 ifdef profile
 CFLAGS+=-profile
@@ -32,19 +32,13 @@ CFLAGS+=-cov
 LFLAGS+=-cov
 endif
 
-all: $(EXEC)
-
-full: release
-
-$(EXEC): $(OBJS)
+$(BIN): $(OBJ)
 	mkdir -p $(BINDIR)
-	$(CC) $(LFLAGS) $?
-	mv a.out $(BINDIR)/$(EXEC)
+	$(CC) $(OBJ) $(LFLAGS)
 
-%.o: %.d $(HEADERS)
-	$(CC) $(CFLAGS) -c $<
+$(OBJ): $(SRC) $(INC)
+	$(CC) -c $(CFLAGS) $(SRC)
 
 clean:
-	rm -f $(BINDIR)/$(EXEC)
-	rm -f $(SRCDIR)/*.o
+	rm -f $(BIN) $(OBJ)
 
