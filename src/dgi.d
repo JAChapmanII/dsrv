@@ -4,6 +4,21 @@ import std.array;
 import std.uri;
 
 import std.xml;
+import std.regex;
+
+string compactifyCSS(string CSS) {
+	CSS = replace(CSS, regex(r"^\s+"), "");
+	CSS = replace(CSS, regex(r"\s+$"), "");
+	CSS = replace(CSS, regex(r"\s+", "g"), " ");
+	CSS = replace(CSS, regex(r"; ", "g"), ";");
+	CSS = replace(CSS, regex(r": ", "g"), ":");
+	CSS = replace(CSS, regex(r" \}", "g"), "}");
+	CSS = replace(CSS, regex(r"\} ", "g"), "}");
+	CSS = replace(CSS, regex(r" \{", "g"), "{");
+	CSS = replace(CSS, regex(r"\{ ", "g"), "{");
+	CSS = replace(CSS, regex(r";\}", "g"), "}");
+	return CSS;
+}
 
 void main(string[] args) {
 	writeln("Content-type: text/html\n");
@@ -31,13 +46,11 @@ void main(string[] args) {
 	mHTML ~= mTBody;
 
 	mStyle.tag.attr["type"] = "text/css";
-	mStyle ~= new Text(
-			".mcol { width:860px; margin:0 auto; background: #fff; " ~
-			" border: 1px solid #ccc; padding:20px }" ~
-			"h3 { text-align: center }" ~
-			"p { text-align: justify }" ~
-			"body { background: #eee }");
-
+	// This is compile time, not run time
+	string CSS = import("style.css");
+	// this is run time, not compile time >_>
+	CSS = compactifyCSS(CSS);
+	mStyle ~= new Text(CSS);
 
 	string[string] fieldMap;
 	string queryString = getenv("QUERY_STRING");
