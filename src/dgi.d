@@ -10,12 +10,10 @@ string compactifyCSS(string CSS) {
 	CSS = replace(CSS, regex(r"^\s+"), "");
 	CSS = replace(CSS, regex(r"\s+$"), "");
 	CSS = replace(CSS, regex(r"\s+", "g"), " ");
-	CSS = replace(CSS, regex(r"; ", "g"), ";");
-	CSS = replace(CSS, regex(r": ", "g"), ":");
-	CSS = replace(CSS, regex(r" \}", "g"), "}");
-	CSS = replace(CSS, regex(r"\} ", "g"), "}");
-	CSS = replace(CSS, regex(r" \{", "g"), "{");
-	CSS = replace(CSS, regex(r"\{ ", "g"), "{");
+	CSS = replace(CSS, regex(r"\s*;\s*", "g"), ";");
+	CSS = replace(CSS, regex(r"\s*:\s*", "g"), ":");
+	CSS = replace(CSS, regex(r"\s*\}\s*", "g"), "}");
+	CSS = replace(CSS, regex(r"\s*\{\s*", "g"), "{");
 	CSS = replace(CSS, regex(r";\}", "g"), "}");
 	return CSS;
 }
