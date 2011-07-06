@@ -1,0 +1,15 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+    <title>Error</title>
+    <style type="text/css">.mcol{width:860px;margin:0 auto;background:#fff;border:1px solid #ccc;padding:20px}h3{text-align:center}p{text-align:justify}body{background:#eee}</style>
+  </head>
+  <body>
+    <div class="mcol">
+      <h3>Error</h3>
+      <p>There was an uncaught error rendering the page. Please report
+      anything you think may be useful in reproducing this error to
+      <a href="mailto:jac@JAChapmanII.net">jac@JAChapmanII.net</a></p>
+    </div>
+  </body>
+</html>

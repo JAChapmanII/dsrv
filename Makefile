@@ -5,7 +5,7 @@ INCDIR=inc
 SRC=$(SRCDIR)/dgi.d
 OBJ=$(SRCDIR)/dgi.o
 BIN=$(BINDIR)/dgi
-INC=$(INCDIR)/style.css
+INC=$(wildcard $(INCDIR)/*)
 
 CC=gdmd
 
