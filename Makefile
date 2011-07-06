@@ -2,19 +2,19 @@ SRCDIR=src
 BINDIR=bin
 INCDIR=inc
 
-SRC=$(SRCDIR)/dgi.d
-OBJ=$(SRCDIR)/dgi.o
+SOURCES=$(wildcard $(SRCDIR)/*.d)
+OBJECTS=$(SOURCES:.d=.o)
 BIN=$(BINDIR)/dgi
 INC=$(wildcard $(INCDIR)/*)
 
 CC=gdmd
 
 CFLAGS=-od$(SRCDIR) -I$(SRCDIR) -J$(INCDIR)
-LFLAGS=-of$(BIN)
+LDFLAGS=-of$(BIN)
 
 ifdef profile
 CFLAGS+=-profile
-LFLAGS+=-profile
+LDFLAGS+=-profile
 endif
 
 ifndef nowall
@@ -27,18 +27,16 @@ else
 CFLAGS+=-g -debug
 endif
 
-ifdef coverage
-CFLAGS+=-cov
-LFLAGS+=-cov
-endif
+deploy: $(BIN)
+	./deploy.sh
 
-$(BIN): $(OBJ)
+$(BIN): $(OBJECTS)
 	mkdir -p $(BINDIR)
-	$(CC) $(OBJ) $(LFLAGS)
+	$(CC) $(OBJECTS) $(LDFLAGS)
 
-$(OBJ): $(SRC) $(INC)
-	$(CC) -c $(CFLAGS) $(SRC)
+%.o: %.d
+	$(CC) -c $(CFLAGS) $*
 
 clean:
-	rm -f $(BIN) $(OBJ)
+	rm -f $(BIN) $(OBJECTS)
 

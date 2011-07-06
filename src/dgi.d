@@ -6,6 +6,8 @@ import std.uri;
 import std.xml;
 import std.regex;
 
+import code_handler, update_handler;
+
 string compactifyCSS(string CSS) {
 	CSS = replace(CSS, regex(r"^\s+"), "");
 	CSS = replace(CSS, regex(r"\s+$"), "");
@@ -74,24 +76,6 @@ Element defaultHandler(string URL) {
 			"This is roughly 90 lines of D code. D is really awesome, the" ~
 			" the only detriment to using it is the fact that the compiled" ~
 			" binary is ~1MiB O.o");
-
-	return mBody;
-}
-
-Element updateHandler(string URL) {
-	Element mBody = new Element("div");
-	mBody.tag.attr["class"] = "mcol";
-
-	mBody ~= new Element("h3", URL);
-
-	return mBody;
-}
-
-Element codeHandler(string URL) {
-	Element mBody = new Element("div");
-	mBody.tag.attr["class"] = "mcol";
-
-	mBody ~= new Element("h3", URL);
 
 	return mBody;
 }
