@@ -23,7 +23,7 @@ class Update {
 			if(!isFile(fName))
 				return "update does not exist";
 
-			return contents;
+			return readText(fName);
 		}
 
 		static Update[] parseUDates() {
