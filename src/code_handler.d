@@ -1,6 +1,7 @@
 import std.xml;
 import std.path;
 import std.algorithm;
+import std.string;
 
 import repository;
 
@@ -16,7 +17,7 @@ Element codeHandler(string URL) {
 	mBody.tag.attr["class"] = "scol";
 	mMColumn ~= mBody;
 
-	mBody ~= new Element("h3", URL);
+	mBody ~= new Element("h3", capwords(tolower(URL)));
 	Repository[] repos = Repository.parseRepositories();
 	if(!repos.length) {
 		mBody ~= new Element("p", "There are no repositories");
