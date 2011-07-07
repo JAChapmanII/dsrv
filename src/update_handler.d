@@ -4,7 +4,8 @@ import std.conv;
 
 import update;
 
-static const URL_PREFIX = "update/";
+static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string URL_PREFIX = "update/";
 
 Element updateHandler(string URL) {
 	Element mMColumn = new Element("div");
@@ -23,7 +24,8 @@ Element updateHandler(string URL) {
 			if(r >= updates.length)
 				mBody ~= new Element("p", "no post this high");
 			else {
-				string c = updates[r].getContents();
+				string c = 
+					"<div class=\"update\">" ~ updates[r].getContents() ~ "</div>";
 				try {
 					check(c);
 					Element postHeader = new Element("h3");
@@ -46,6 +48,31 @@ Element updateHandler(string URL) {
 					mBody ~= new Element("pre", e.toString());
 				}
 			}
+
+			int next = r + 2, prev = r;
+			if(prev >= 1) {
+				Element prevE = new Element("p");
+				prevE.tag.attr["class"] = "lcol";
+				Element prevL = new Element("a", "Previous");
+				prevL.tag.attr["href"] = 
+					URL_BASE ~ URL_PREFIX ~ to!string(prev);
+				prevE ~= prevL;
+				mBody ~= prevE;
+			}
+			if(next <= updates.length) {
+				Element nextE = new Element("p");
+				nextE.tag.attr["class"] = "rcol";
+				nextE.tag.attr["style"] = "text-align:right";
+				Element nextL = new Element("a", "Next");
+				nextL.tag.attr["href"] = 
+					URL_BASE ~ URL_PREFIX ~ to!string(next);
+				nextE ~= nextL;
+				mBody ~= nextE;
+			}
+			
+			Element spacer = new Document("<p>&#160;</p>");
+			spacer.tag.attr["style"] = "line-height:0;clear:both";
+			mBody ~= spacer;
 		} else {
 			mBody ~= new Element("p", "Post requested by title");
 		}
