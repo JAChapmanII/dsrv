@@ -72,8 +72,6 @@ string getCSS() { //{{{
 			CSS ~= line ~ "\n";
 	}
 	CSS = compactifyCSS(CSS);
-	// a single % stops transfer? TODO
-	CSS = replace(CSS, regex(r"%", "g"), "%%");
 	return CSS;
 } //}}}
 
