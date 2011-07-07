@@ -9,7 +9,7 @@ import std.regex;
 
 import std.file, std.string;
 
-import code_handler, update_handler;
+import about_handler, code_handler, update_handler;
 
 static const string CSS_FILE = "style.css";
 static const string URL_BASE = "http://jachapmanii.net/~jac/";
@@ -178,10 +178,12 @@ void main(string[] args) {
 		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 
 	Handler[] handlers;
-	handlers ~= Handler(r"^update/", &updateHandler);
-	handlers ~= Handler(r"^update$", &updateHandler);
+	handlers ~= Handler(r"^about/", &aboutHandler);
+	handlers ~= Handler(r"^about$", &aboutHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
 	handlers ~= Handler(r"^code$", &codeHandler);
+	handlers ~= Handler(r"^update/", &updateHandler);
+	handlers ~= Handler(r"^update$", &updateHandler);
 
 	try {
 		// create html tag
