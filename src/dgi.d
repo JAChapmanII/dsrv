@@ -6,6 +6,8 @@ import std.uri;
 import std.xml;
 import std.regex;
 
+import std.file, std.string;
+
 import code_handler, update_handler;
 
 string compactifyCSS(string CSS) {
@@ -54,6 +56,18 @@ static void generateFieldMap() {
 	}
 }
 
+string getCSS() {
+	string CSS = "";
+	if(isFile("style.css")) {
+		foreach(line; splitlines(readText("style.css")))
+			CSS ~= line ~ "\n";
+	}
+	CSS = compactifyCSS(CSS);
+	// a single % stops transfer? TODO
+	CSS = replace(CSS, regex(r"%", "g"), "%%");
+	return CSS;
+}
+
 // Generate basic informative body
 Element defaultHandler(string URL) {
 	Element mBody = new Element("div");
@@ -81,6 +95,13 @@ Element defaultHandler(string URL) {
 }
 
 void main(string[] args) {
+	if(args.length > 1) {
+		string CSS = import("style.css");
+		CSS = compactifyCSS(CSS);
+		writeln(CSS);
+		return;
+	}
+
 	writeln("Content-type: text/html\n");
 
 	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
@@ -111,11 +132,7 @@ void main(string[] args) {
 		mHTML ~= mHead;
 
 		mStyle.tag.attr["type"] = "text/css";
-		// This is compile time, not run time
-		string CSS = import("style.css");
-		// this is run time, not compile time >_>
-		CSS = compactifyCSS(CSS);
-		mStyle ~= new Text(CSS);
+		mStyle ~= new Text(getCSS());
 
 		// process QUERY_STRING
 		generateFieldMap();
