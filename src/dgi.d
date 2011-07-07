@@ -10,6 +10,9 @@ import std.file, std.string;
 
 import code_handler, update_handler;
 
+static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
+
 string compactifyCSS(string CSS) {
 	CSS = replace(CSS, regex(r"^\s+"), "");
 	CSS = replace(CSS, regex(r"\s+$"), "");
@@ -94,11 +97,62 @@ Element defaultHandler(string URL) {
 	return mBody;
 }
 
+// Generate the header div
+Element getHeader(string URL) {
+	string hValidatorBase = "http://validator.w3.org/check?uri=";
+	string cValidatorBase = "http://jigsaw.w3.org/css-validator/validator?uri=";
+	string spaces = "&#160;"; spaces ~= spaces; spaces ~= spaces;
+	Document tab = new Document("<span>" ~ spaces ~ "</span>");
+
+	Element headerContanier = new Element("div");
+	headerContanier.tag.attr["class"] = "hnavbar";
+
+	Element header = new Element("p");
+	Element homeLink = new Element("a", "Home");
+		homeLink.tag.attr["href"] = URL_BASE;
+	Element aboutLink = new Element("a", "About");
+		aboutLink.tag.attr["href"] = URL_BASE ~ "about";
+	Element codeLink = new Element("a", "Code");
+		codeLink.tag.attr["href"] = URL_BASE ~ "code";
+	Element contactLink = new Element("a", "Contact");
+		contactLink.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
+	Element hValidatorLink = new Element("a", "Validate HTML");
+		hValidatorLink.tag.attr["href"] = hValidatorBase ~ URL_BASE ~ URL;
+	Element cValidatorLink = new Element("a", "Validate CSS");
+		cValidatorLink.tag.attr["href"] = cValidatorBase ~ URL_BASE ~ URL;
+
+	header ~= homeLink; header ~= tab;
+	header ~= aboutLink; header ~= tab;
+	header ~= codeLink; header ~= tab;
+	header ~= contactLink; header ~= tab;
+	header ~= hValidatorLink; header ~= tab;
+	header ~= cValidatorLink;
+
+	headerContanier ~= header;
+	return headerContanier;
+}
+
+// Generate the footer div
+Element getFooter(string URL) {
+	Element footerContainer = new Element("div");
+	footerContainer.tag.attr["class"] = "ffooter";
+
+	Element footer = new Element("p");
+	footer ~= new Text(
+			"If you need to get a hold of me for whatever reason, simply drop me
+			a line: ");
+	Element mailto = new Element("a");
+	mailto.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
+	mailto ~= new Text(ADMIN_EMAIL);
+	footer ~= mailto;
+
+	footerContainer ~= footer;
+	return footerContainer;
+}
+
 void main(string[] args) {
 	if(args.length > 1) {
-		string CSS = import("style.css");
-		CSS = compactifyCSS(CSS);
-		writeln(CSS);
+		writeln(getCSS());
 		return;
 	}
 
@@ -137,8 +191,6 @@ void main(string[] args) {
 		// process QUERY_STRING
 		generateFieldMap();
 
-		Element mBody = new Element("body");
-		
 		Element function(string) handleURL = &defaultHandler;
 
 		foreach(handler; handlers) {
@@ -147,7 +199,10 @@ void main(string[] args) {
 				handleURL = handler.h;
 		}
 
-		mBody ~= handleURL(fieldMap["__path__"]);
+		Element mBody = new Element("body");
+			mBody ~= getHeader(fieldMap["__path__"]);
+			mBody ~= handleURL(fieldMap["__path__"]);
+			mBody ~= getFooter(fieldMap["__path__"]);
 		mHTML ~= mBody;
 
 		writefln(join(mHTML.pretty(2), "\n"));
