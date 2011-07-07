@@ -20,7 +20,7 @@ Element updateHandler(string URL) {
 		mBody ~= new Element("p", "There are no updates");
 	} else {
 		string suffix = URL[URL_PREFIX.length..$];
-		int r;
+		int r = cast(int)updates.length + 1;
 		if(isNumeric(suffix)) {
 			r = to!int(suffix) - 1;
 		} else {
@@ -40,28 +40,7 @@ Element updateHandler(string URL) {
 		}
 		Update update = updates[r];
 
-		string c = "<div class=\"update\">" ~ update.getContents() ~ "</div>";
-		try {
-			check(c);
-			Element postHeader = new Element("h3");
-			postHeader ~= new Document("<span>&#160;</span>");
-				postHeader.tag.attr["class"] = "uhead";
-			Element pTitle = new Element("a", " " ~ update.title);
-				pTitle.tag.attr["class"] = "utitle lcol";
-			Element pDT = new Element("span",
-					updates[r].date ~ " " ~ update.time);
-				pDT.tag.attr["class"] = "udt rcol";
-			postHeader ~= pTitle;
-			postHeader ~= pDT;
-			mBody ~= postHeader;
-
-
-			mBody ~= new Document(c);
-		} catch(CheckException e) {
-			mBody ~= new Element("p", 
-					"Looks like this post isn't proper XML!");
-			mBody ~= new Element("pre", e.toString());
-		}
+		Element post = formatUpdate(update);
 
 		int next = r + 2, prev = r;
 		if(prev >= 1) {
@@ -90,5 +69,34 @@ Element updateHandler(string URL) {
 	}
 
 	return mMColumn;
+}
+
+Element formatUpdate(Update update, string wrapperClass = "update") {
+	if(update is null)
+		return null;
+
+	Element post;
+	string c = 
+		"<div class=\"" ~ wrapperClass ~ "\">" ~ update.getContents() ~ "</div>";
+	try {
+		check(c);
+		Element postHeader = new Element("h3");
+		postHeader ~= new Document("<span>&#160;</span>");
+			postHeader.tag.attr["class"] = "uhead";
+		Element pTitle = new Element("a", " " ~ update.title);
+			pTitle.tag.attr["class"] = "utitle lcol";
+		Element pDT = new Element("span",
+				update.date ~ " " ~ update.time);
+			pDT.tag.attr["class"] = "udt rcol";
+		postHeader ~= pTitle;
+		postHeader ~= pDT;
+		post ~= postHeader;
+		post ~= new Document(c);
+	} catch(CheckException e) {
+		post ~= new Element("p", "Looks like this post isn't proper XML!");
+		post ~= new Element("pre", e.toString());
+	}
+
+	return post;
 }
 
