@@ -79,20 +79,35 @@ class Repository {
 			return split(branches, "\n");
 		}
 
-		string[] commits() {
+		struct Commit {
+			string hash;
+			string relDate;
+			string subject;
+		}
+
+		Commit[] commits() {
 			if(!isDir(REPOS_DIR))
 				return null;
 
-			string commits;
+			Commit[] commits;
+			string cos;
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				commits = shell("git log -z --pretty=oneline");
+				cos = shell("git log --pretty='%H%x00%ar%x00%s'");
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
 			}
-			return split(commits, "\n");
+			string[] cs = split(cos, "\n");
+			foreach(c; cs) {
+				if(c.length) {
+					string[] f = split(c, "\0");
+					Commit com = { f[0], f[1], f[2] };
+					commits ~= com;
+				}
+			}
+			return commits;
 		}
 
 		string language() {
