@@ -223,9 +223,10 @@ void main(string[] args) {
 			mBody ~= getFooter(fieldMap["__path__"]);
 		mHTML ~= mBody;
 
-		writefln(join(mHTML.pretty(2), "\n"));
+		writeln(join(mHTML.pretty(2), "\n"));
 	} catch(Exception e) {
 		writeln(getDefaultErrorPage());
+		writeln("<!-- " ~ e.toString() ~ " -->");
 	}
 	writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 }

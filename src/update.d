@@ -23,7 +23,6 @@ class Update {
 			if(!isFile(fName))
 				return "update does not exist";
 
-			string contents = replace(readText(fName), regex(r"%", "g"), "%%");
 			return contents;
 		}
 
