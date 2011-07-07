@@ -7,8 +7,10 @@ import update;
 static const URL_PREFIX = "update/";
 
 Element updateHandler(string URL) {
+	Element mMColumn = new Element("div");
+	mMColumn.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");
-	mBody.tag.attr["class"] = "mcol";
+	mBody.tag.attr["class"] = "scol";
 
 	mBody ~= new Element("h3", URL);
 	Update[] updates = Update.parseUDates();
@@ -36,6 +38,7 @@ Element updateHandler(string URL) {
 		}
 	}
 
-	return mBody;
+	mMColumn ~= mBody;
+	return mMColumn;
 }
 
