@@ -93,10 +93,16 @@ Element codeHandler(string URL) {
 					cloneCommand.tag.attr["class"] = "code";
 				mBody ~= cloneCommand;
 
+				string[] branches = repo.branches();
+				foreach(b; branches)
+					if(b.length)
+						mBody ~= new Element("p", "Branch: " ~ b);
+
 				string[] files = repo.files();
 				if(files.length) {
 					foreach(f; files) {
 						if(f == "README") {
+							mBody ~= new Element("p", "README:");
 							Element readme = new Element("pre", repo.getFile(f));
 								readme.tag.attr["class"] = "quote";
 							mBody ~= readme;
