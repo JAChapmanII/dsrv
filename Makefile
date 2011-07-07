@@ -27,15 +27,15 @@ else
 CFLAGS+=-g -debug
 endif
 
-deploy: $(BIN)
-	./deploy.sh
-
 $(BIN): $(OBJECTS)
 	mkdir -p $(BINDIR)
 	$(CC) $(OBJECTS) $(LDFLAGS)
 
 %.o: %.d
 	$(CC) -c $(CFLAGS) $*
+
+deploy.sh: $(BIN)
+	./deploy.sh
 
 clean:
 	rm -f $(BIN) $(OBJECTS)
