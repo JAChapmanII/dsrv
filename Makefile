@@ -4,13 +4,13 @@ INCDIR=inc
 
 SOURCES=$(wildcard $(SRCDIR)/*.d)
 OBJECTS=$(SOURCES:.d=.o)
-BIN=$(BINDIR)/dgi
+BIN=dgi
 INC=$(wildcard $(INCDIR)/*)
 
 CC=gdmd
 
 CFLAGS=-od$(SRCDIR) -I$(SRCDIR) -J$(INCDIR)
-LDFLAGS=-of$(BIN)
+LDFLAGS=-of$(BINDIR)/$(BIN)
 
 ifdef profile
 CFLAGS+=-profile
@@ -27,16 +27,23 @@ else
 CFLAGS+=-g -debug
 endif
 
-$(BIN): $(OBJECTS)
+$(BINDIR)/$(BIN): $(OBJECTS)
 	mkdir -p $(BINDIR)
+	if [ -f $(BINDIR)/$(BIN) ]; then mv $(BINDIR)/$(BIN){,.old}; fi
 	$(CC) $(OBJECTS) $(LDFLAGS)
 
 %.o: %.d
 	$(CC) -c $(CFLAGS) $*
 
-deploy.sh: $(BIN)
+cdeploy.sh: $(BINDIR)/$(BIN)
+	./cdeploy.sh
+	touch cdeploy.sh
+
+deploy.sh: $(BINDIR)/$(BIN)
 	./deploy.sh
+	touch deploy.sh
+
 
 clean:
-	rm -f $(BIN) $(OBJECTS)
+	rm -f $(BINDIR)/$(BIN) $(OBJECTS)
 
