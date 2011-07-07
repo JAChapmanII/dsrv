@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd ~
+tar xf dgi.tar.xz
+mv bin/dgi public_html/j.cgi
+rm dgi.tar.xz
+
