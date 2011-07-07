@@ -101,6 +101,23 @@ Element defaultHandler(string URL) { //{{{
 			" lines. D is really awesome, the the only detriment to using it" ~
 			" is the fact that the compiled binary is pretty hefty" ~
 			" (~1.5 MiB O.o)");
+	mBody ~= new Element("p",
+			"Most of the above is out of date haha ;). The entire shebang is" ~
+			" now weighing in around 750 lines with several modules including" ~
+			" the cool and upcoming code stuff. I just made a rewrite rule to" ~
+			" redirect all non-home directory traffic here so I can figure out" ~
+			" what to do with the PHP thing later.");
+	mBody ~= new Element("p", "Apparently, something defaults to requesting" ~
+			" index.html or similar (according to the path we were given, " ~
+			fieldMap["__path__"] ~ "), which is why you are here and not on my" ~
+			" post list. Since this CGI program handles everything without" ~
+			" saying \"404 - File not Found\" you could get here in an"
+			" infinite number of ways :D [barring limitations to URL length in" ~
+			" the HTML standard, apache, or some limit on environment variable" ~
+			" length imposed somewhere in POSIX or linux or somethnig ;)]");
+	Element mainLink = new Element("a", "Go to the update list");
+		mainLink.tag.attr["href"] = URL_BASE;
+	mBody ~= mainLink;
 
 	mMColumn ~= mBody;
 	return mMColumn;
