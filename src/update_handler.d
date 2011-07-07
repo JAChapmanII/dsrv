@@ -17,12 +17,16 @@ Element updateHandler(string URL) {
 	Element spacer = new Document("<p>&#160;</p>");
 	spacer.tag.attr["style"] = "line-height:0;clear:both";
 
-	mBody ~= new Element("h3", URL);
+	if(URL.length)
+		mBody ~= new Element("h3", URL);
+	else
+		mBody ~= new Element("h3", "Updates/all");
+
 	Update[] updates = Update.parseUDates();
 	if(!updates.length) {
 		mBody ~= new Element("p", "There are no updates");
 	} else {
-		if((URL == "update") || (URL == "update/all")) {
+		if((URL == "update") || (URL == "update/all") || !URL.length) {
 			for(long i = updates.length - 1; i >= 0; --i) {
 				Element post;
 				if(i == updates.length - 1)
