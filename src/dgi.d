@@ -14,7 +14,8 @@ static const string CSS_FILE = "style.css";
 static const string URL_BASE = "http://jachapmanii.net/~jac/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
 
-string compactifyCSS(string CSS) {
+// Compact a string containing valid CSS
+string compactifyCSS(string CSS) { //{{{
 	CSS = replace(CSS, regex(r"^\s+"), "");
 	CSS = replace(CSS, regex(r"\s+$"), "");
 	CSS = replace(CSS, regex(r"\s+", "g"), " ");
@@ -24,7 +25,7 @@ string compactifyCSS(string CSS) {
 	CSS = replace(CSS, regex(r"\s*\{\s*", "g"), "{");
 	CSS = replace(CSS, regex(r";\}", "g"), "}");
 	return CSS;
-}
+} //}}}
 
 struct Handler {
 	string r;
@@ -96,9 +97,13 @@ Element defaultHandler(string URL) { //{{{
 		mBody ~= new Element("p", "Hello there, " ~ fieldMap["name"] ~ "!");
 
 	mBody ~= new Element("p",
-			"This is roughly 90 lines of D code. D is really awesome, the" ~
-			" the only detriment to using it is the fact that the compiled" ~
-			" binary is ~1MiB O.o");
+			"This is roughly 223 lines of D code. This includes a standard" ~
+			" header generation function along with the same for the footer," ~
+			" a basic CSS compacter and lots of error handling. So far the" ~
+			" update sub-folder of this site is roughly another 100 or so" ~
+			" lines. D is really awesome, the the only detriment to using it" ~
+			" is the fact that the compiled binary is pretty hefty" ~
+			" (~1.5 MiB O.o)");
 
 	mMColumn ~= mBody;
 	return mMColumn;
