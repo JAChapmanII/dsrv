@@ -164,9 +164,14 @@ Element getFooter(string URL) { //{{{
 
 void main(string[] args) {
 	TickDuration start = TickDuration.currSystemTick();
-	if(args.length > 1) {
+
+	// process QUERY_STRING
+	generateFieldMap();
+
+	if((args.length > 1) || (fieldMap["__path__"] == CSS_FILE)) {
+		writeln("Content-type: text/css\n");
 		writeln(getCSS());
-		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
+		writeln("/* ", (TickDuration.currSystemTick() - start).msecs(), " */");
 		return;
 	}
 
@@ -199,15 +204,13 @@ void main(string[] args) {
 				mMeta.tag.attr["content"] = "text/html; charset=UTF-8";
 			mHead ~= mMeta;
 			mHead ~= new Element("title", "~jac");
-			Element mStyle = new Element("style");
+			Element mStyle = new Element("link");
+				mStyle.tag.attr["rel"] = "stylesheet";
+				mStyle.tag.attr["type"] = "text/css";
+				mStyle.tag.attr["href"] = URL_BASE ~ CSS_FILE;
 			mHead ~= mStyle;
 		mHTML ~= mHead;
 
-		mStyle.tag.attr["type"] = "text/css";
-		mStyle ~= new Text(getCSS());
-
-		// process QUERY_STRING
-		generateFieldMap();
 
 		Element function(string) handleURL = &defaultHandler;
 
