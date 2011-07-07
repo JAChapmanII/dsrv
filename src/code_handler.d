@@ -57,6 +57,7 @@ Element codeHandler(string URL) {
 		} else {
 			Repository repo;
 			string rName = URL[URL_PREFIX.length..$];
+			string branch = "master";
 			while(count(rName, '/'))
 				rName = dirname(rName);
 
@@ -96,6 +97,24 @@ Element codeHandler(string URL) {
 						if(file.length)
 							fileList ~= new Element("li", file);
 					mBody ~= fileList;
+				}
+				string[] commits = repo.commits();
+				if(commits.length) {
+					Element commitList = new Element("ul");
+					foreach(commit; commits) {
+						if(commit.length) {
+							static const int HASH_LENGTH = 40;
+							Element cLink = new Element("a", 
+									commit[0..8] ~ " " ~ commit[HASH_LENGTH + 1..$]);
+							cLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~
+								rName ~ "/" ~ branch ~ "/" ~ commit[0..HASH_LENGTH];
+
+							Element linkLI = new Element("li");
+							linkLI ~= cLink;
+							commitList ~= linkLI;
+						}
+					}
+					mBody ~= commitList;
 				}
 			}
 		}
