@@ -132,13 +132,17 @@ Element codeHandler(string URL) {
 }
 
 static const int MAX_SUBJECT_LENGTH = 80;
-Element commitPageHandler(Repository repository, string branch, long max = -1) {
+// Make a listing of the first max commits of a repository as a nice table
+Element commitPageHandler(
+		Repository repository, string branch, long max = -1) { //{{{
 	Repository.Commit[] commits = repository.commits();
 	if(!commits.length)
 		return null;
 
 	if(max == -1)
 		max = commits.length;
+	else
+		max = min(commits.length, max);
 
 	Element mBody = new Element("table");
 		mBody.tag.attr["class"] = "commits";
@@ -179,5 +183,5 @@ Element commitPageHandler(Repository repository, string branch, long max = -1) {
 		mBody ~= commitRow;
 	}
 	return mBody;
-}
+} //}}}
 
