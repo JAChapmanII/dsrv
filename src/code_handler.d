@@ -80,6 +80,23 @@ Element codeHandler(string URL) {
 				Element cloneCommand = new Element("p", CLONE_PREIX ~ rName);
 					cloneCommand.tag.attr["class"] = "code";
 				mBody ~= cloneCommand;
+
+				string[] files = repo.files();
+				if(files.length) {
+					foreach(file; files) {
+						if(file == "README") {
+							Element readme = new Element("pre", repo.getFile(file));
+								readme.tag.attr["class"] = "quote";
+							mBody ~= readme;
+						}
+					}
+
+					Element fileList = new Element("ul");
+					foreach(file; files)
+						if(file.length)
+							fileList ~= new Element("li", file);
+					mBody ~= fileList;
+				}
 			}
 		}
 	}
