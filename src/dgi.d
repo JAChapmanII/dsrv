@@ -10,6 +10,7 @@ import std.file, std.string;
 
 import code_handler, update_handler;
 
+static const string CSS_FILE = "style.css";
 static const string URL_BASE = "http://jachapmanii.net/~jac/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
 
@@ -39,7 +40,9 @@ string getDefaultErrorPage() {
 }
 
 static string[string] fieldMap;
-static void generateFieldMap() {
+// Generates the fieldMap made of parsed QUERY_STRING data
+static void generateFieldMap() { //{{{
+	fieldMap["__path__"] = "";
 	string queryString = getenv("QUERY_STRING");
 	if(queryString.length > 0) {
 		queryString = replace(queryString, "&", " ");
@@ -57,24 +60,27 @@ static void generateFieldMap() {
 			fieldMap[key] = value;
 		}
 	}
-}
+} //}}}
 
-string getCSS() {
+// Load and compact the CSS from CSS_FILE
+string getCSS() { //{{{
 	string CSS = "";
-	if(isFile("style.css")) {
-		foreach(line; splitlines(readText("style.css")))
+	if(isFile(CSS_FILE)) {
+		foreach(line; splitlines(readText(CSS_FILE)))
 			CSS ~= line ~ "\n";
 	}
 	CSS = compactifyCSS(CSS);
 	// a single % stops transfer? TODO
 	CSS = replace(CSS, regex(r"%", "g"), "%%");
 	return CSS;
-}
+} //}}}
 
 // Generate basic informative body
-Element defaultHandler(string URL) {
+Element defaultHandler(string URL) { //{{{
+	Element mMColumn = new Element("div");
+	mMColumn.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");
-	mBody.tag.attr["class"] = "mcol";
+	mBody.tag.attr["class"] = "scol";
 	mBody ~= new Element("h3", "Welcome to DGI!");
 	mBody ~= new Element("p", "A paragraph :D !");
 
@@ -94,8 +100,9 @@ Element defaultHandler(string URL) {
 			" the only detriment to using it is the fact that the compiled" ~
 			" binary is ~1MiB O.o");
 
-	return mBody;
-}
+	mMColumn ~= mBody;
+	return mMColumn;
+} //}}}
 
 // Generate the header div
 Element getHeader(string URL) {
@@ -165,7 +172,9 @@ void main(string[] args) {
 
 	Handler[] handlers;
 	handlers ~= Handler(r"^update/", &updateHandler);
+	handlers ~= Handler(r"^update$", &updateHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
+	handlers ~= Handler(r"^code$", &codeHandler);
 
 	try {
 		// create html tag
