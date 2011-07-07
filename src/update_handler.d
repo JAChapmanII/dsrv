@@ -26,6 +26,19 @@ Element updateHandler(string URL) {
 				string c = updates[r].getContents();
 				try {
 					check(c);
+					Element postHeader = new Element("h3");
+					postHeader ~= new Document("<span>&#160;</span>");
+						postHeader.tag.attr["class"] = "uhead";
+					Element pTitle = new Element("a", updates[r].title);
+						pTitle.tag.attr["class"] = "utitle lcol";
+					Element pDT = new Element("span",
+							updates[r].date ~ " " ~ updates[r].time);
+						pDT.tag.attr["class"] = "udt rcol";
+					postHeader ~= pTitle;
+					postHeader ~= pDT;
+					mBody ~= postHeader;
+
+
 					mBody ~= new Document(c);
 				} catch(CheckException e) {
 					mBody ~= new Element("p", 
