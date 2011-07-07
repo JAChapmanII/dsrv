@@ -2,6 +2,8 @@ import std.file;
 import std.string;
 import std.conv;
 
+import std.regex;
+
 static const string UDATES_FILE = "udates";
 static const string UDATES_DIR = "updates";
 
@@ -21,7 +23,7 @@ class Update {
 			if(!isFile(fName))
 				return "update does not exist";
 
-			string contents = readText(fName);
+			string contents = replace(readText(fName), regex(r"%", "g"), "%%");
 			return contents;
 		}
 
@@ -30,7 +32,7 @@ class Update {
 			if(!isFile(UDATES_FILE))
 				return updates;
 			foreach(line; splitlines(readText(UDATES_FILE))) {
-				string[] fields = split(line, "|");
+				string[] fields = std.string.split(line, "|");
 				updates ~= new Update(
 						to!int(fields[0]), fields[1], fields[2], fields[3]);
 			}
