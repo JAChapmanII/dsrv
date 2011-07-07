@@ -62,6 +62,22 @@ class Repository {
 			}
 			return c;
 		}
+		
+		string[] branches() {
+			if(!isDir(REPOS_DIR))
+				return null;
+
+			string branches;
+			try {
+				string cwd = getcwd();
+				chdir(REPOS_DIR ~ "/" ~ this._name);
+				branches = shell("git branch -a");
+				chdir(cwd);
+			} catch(Exception e) {
+				return null;
+			}
+			return split(branches, "\n");
+		}
 
 		string[] commits() {
 			if(!isDir(REPOS_DIR))
