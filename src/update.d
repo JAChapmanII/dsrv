@@ -10,10 +10,10 @@ static const string UDATES_DIR = "updates";
 class Update {
 	public:
 		this(int iNumber, string iDate, string iTime, string iTitle) {
-			this.number = iNumber;
-			this.date = iDate;
-			this.time = iTime;
-			this.title = iTime;
+			this._number = iNumber;
+			this._date = iDate;
+			this._time = iTime;
+			this._title = iTitle;
 		}
 
 		string getContents() {
@@ -39,10 +39,26 @@ class Update {
 			return updates;
 		}
 
+		string title() {
+			return this._title;
+		}
+
+		string time() {
+			return this._time;
+		}
+
+		string date() {
+			return this._date;
+		}
+
+		int number() {
+			return this._number;
+		}
+
 	protected:
-		int number;
-		string date;
-		string time;
-		string title;
+		int _number;
+		string _date;
+		string _time;
+		string _title;
 }
 
