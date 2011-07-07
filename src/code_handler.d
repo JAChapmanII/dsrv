@@ -23,11 +23,25 @@ Element codeHandler(string URL) {
 	} else {
 		if(URL == "code") {
 			Element rTable = new Element("table");
+			Element tableHead = new Element("tr");
+			tableHead ~= new Element("th", "Language");
+			tableHead ~= new Element("th", "Name");
+			tableHead ~= new Element("th", "Description");
+			rTable ~= tableHead;
+
 			foreach(repo; repos) {
 				Element rRow = new Element("tr");
 				rRow ~= new Element("td", repo.language());
 				Element linkTD = new Element("td");
-				Element rLink = new Element("a", repo.name());
+				string names = repo.name();
+				if(repo.alternateNames.length)
+					names ~= ", ";
+				for(int i = 0; i < repo.alternateNames.length; ++i) {
+					names ~= repo.alternateNames[i];
+					if(i != repo.alternateNames.length - 1)
+						names ~= ", ";
+				}
+				Element rLink = new Element("a", names);
 				rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name();
 				linkTD ~= rLink;
 				rRow ~= linkTD;
