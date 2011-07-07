@@ -31,7 +31,7 @@ Element updateHandler(string URL) {
 					Element postHeader = new Element("h3");
 					postHeader ~= new Document("<span>&#160;</span>");
 						postHeader.tag.attr["class"] = "uhead";
-					Element pTitle = new Element("a", updates[r].title);
+					Element pTitle = new Element("a", " " ~ updates[r].title);
 						pTitle.tag.attr["class"] = "utitle lcol";
 					Element pDT = new Element("span",
 							updates[r].date ~ " " ~ updates[r].time);
