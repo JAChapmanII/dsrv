@@ -63,6 +63,22 @@ class Repository {
 			return c;
 		}
 
+		string[] commits() {
+			if(!isDir(REPOS_DIR))
+				return null;
+
+			string commits;
+			try {
+				string cwd = getcwd();
+				chdir(REPOS_DIR ~ "/" ~ this._name);
+				commits = shell("git log -z --pretty=oneline");
+				chdir(cwd);
+			} catch(Exception e) {
+				return null;
+			}
+			return split(commits, "\n");
+		}
+
 		string language() {
 			return this._language;
 		}
