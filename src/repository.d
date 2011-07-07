@@ -2,6 +2,8 @@ import std.file;
 import std.string;
 import std.conv;
 
+import std.process;
+
 static const string REPOS_FILE = "repos";
 static const string REPOS_DIR = "code";
 
@@ -28,6 +30,37 @@ class Repository {
 						fields[0], fields[1], fields[2], altNames);
 			}
 			return repositories;
+		}
+
+		string[] files() {
+			if(!isDir(REPOS_DIR))
+				return null;
+			string r;
+			try {
+				string cwd = getcwd();
+				chdir(REPOS_DIR ~ "/" ~ this._name);
+				r = shell("git ls-tree -z --name-only master");
+				chdir(cwd);
+			} catch(Exception e) {
+				return null;
+			}
+			return split(r, "\0");
+		}
+
+		string getFile(string fName, string branch = "master") {
+			if(!isDir(REPOS_DIR))
+				return null;
+
+			string c;
+			try {
+				string cwd = getcwd();
+				chdir(REPOS_DIR ~ "/" ~ this._name);
+				c = shell("git show " ~ branch ~ ":" ~ fName);
+				chdir(cwd);
+			} catch(Exception e) {
+				return null;
+			}
+			return c;
 		}
 
 		string language() {
