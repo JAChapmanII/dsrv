@@ -105,7 +105,7 @@ Element defaultHandler(string URL) { //{{{
 } //}}}
 
 // Generate the header div
-Element getHeader(string URL) {
+Element getHeader(string URL) { //{{{
 	string hValidatorBase = "http://validator.w3.org/check?uri=";
 	string cValidatorBase = "http://jigsaw.w3.org/css-validator/validator?uri=";
 	string spaces = "&#160;"; spaces ~= spaces; spaces ~= spaces;
@@ -137,10 +137,10 @@ Element getHeader(string URL) {
 
 	headerContanier ~= header;
 	return headerContanier;
-}
+} //}}}
 
 // Generate the footer div
-Element getFooter(string URL) {
+Element getFooter(string URL) { //{{{
 	Element footerContainer = new Element("div");
 	footerContainer.tag.attr["class"] = "ffooter";
 
@@ -155,7 +155,7 @@ Element getFooter(string URL) {
 
 	footerContainer ~= footer;
 	return footerContainer;
-}
+} //}}}
 
 void main(string[] args) {
 	if(args.length > 1) {
