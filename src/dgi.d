@@ -2,6 +2,7 @@ import std.stdio;
 import std.process;
 import std.array;
 import std.uri;
+import core.time;
 
 import std.xml;
 import std.regex;
@@ -150,9 +151,8 @@ Element getFooter(string URL) { //{{{
 	footerContainer.tag.attr["class"] = "ffooter";
 
 	Element footer = new Element("p");
-	footer ~= new Text(
-			"If you need to get a hold of me for whatever reason, simply drop me
-			a line: ");
+	footer ~= new Text("If you need to get a hold of me for whatever reason," ~
+			" simply drop me a line: ");
 	Element mailto = new Element("a");
 	mailto.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
 	mailto ~= new Text(ADMIN_EMAIL);
@@ -163,8 +163,10 @@ Element getFooter(string URL) { //{{{
 } //}}}
 
 void main(string[] args) {
+	TickDuration start = TickDuration.currSystemTick();
 	if(args.length > 1) {
 		writeln(getCSS());
+		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 		return;
 	}
 
@@ -223,5 +225,6 @@ void main(string[] args) {
 	} catch(Exception e) {
 		writeln(getDefaultErrorPage());
 	}
+	writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 }
 
