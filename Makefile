@@ -35,13 +35,13 @@ $(BINDIR)/$(BIN): $(OBJECTS)
 %.o: %.d
 	$(CC) -c $(CFLAGS) $*
 
-cdeploy.sh: $(BINDIR)/$(BIN)
+cdeploy cdeploy.sh: $(BINDIR)/$(BIN)
 	./cdeploy.sh
-	touch cdeploy.sh
+	touch cdeploy cdeploy.sh
 
-deploy.sh: $(BINDIR)/$(BIN)
+deploy deploy.sh: $(BINDIR)/$(BIN)
 	./deploy.sh
-	touch deploy.sh
+	touch deploy deploy.sh
 
 
 clean:
