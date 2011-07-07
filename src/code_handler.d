@@ -3,12 +3,16 @@ import std.path;
 import std.algorithm;
 import std.string;
 
+import std.conv;
+
 import repository;
 
 static const string URL_PREFIX = "code/";
 static const string URL_BASE = "http://jachapmanii.net/~jac/";
 
 static const string CLONE_PREIX = "git clone git git://JAChapmanII.net/";
+
+static const int HASH_LENGTH = 40;
 
 Element codeHandler(string URL) {
 	Element mMColumn = new Element("div");
@@ -58,16 +62,14 @@ Element codeHandler(string URL) {
 			Repository repo;
 			string[] rfields = split(URL[URL_PREFIX.length..$], "/");
 
-			string rName = rfields[0], branch, commit, file;
+			string rName = rfields[0], command;
 			if(rfields.length > 1)
-				branch = rfields[1];
-			if(rfields.length > 2)
-				commit = rfields[2];
-			if(rfields.length > 3)
-				file = rfields[3];
+				command = rfields[1];
 
-			if(!branch.length)
-				branch = "master";
+			foreach(i, field; rfields)
+				mBody ~= new Comment("rfields[" ~ to!string(i) ~ "] = " ~ field);
+
+			string branch = "master";
 
 			while(count(rName, '/'))
 				rName = dirname(rName);
@@ -88,6 +90,11 @@ Element codeHandler(string URL) {
 			if(repo is null) {
 				mBody ~= new Element("p", "No repository by that name");
 			} else {
+				if(command == "commits") {
+					mBody ~= commitPageHandler(repo, branch);
+					return mMColumn;
+				}
+
 				mBody ~= new Element("p", "Clone this repository:");
 				Element cloneCommand = new Element("p", CLONE_PREIX ~ rName);
 					cloneCommand.tag.attr["class"] = "code";
@@ -104,7 +111,7 @@ Element codeHandler(string URL) {
 						if(f == "README") {
 							mBody ~= new Element("p", "README:");
 							Element readme = new Element("pre", repo.getFile(f));
-								readme.tag.attr["class"] = "quote";
+								readme.tag.attr["class"] = "readme";
 							mBody ~= readme;
 						}
 					}
@@ -115,28 +122,62 @@ Element codeHandler(string URL) {
 							fileList ~= new Element("li", f);
 					mBody ~= fileList;
 				}
-				string[] commits = repo.commits();
-				if(commits.length) {
-					Element commitList = new Element("ul");
-					foreach(c; commits) {
-						if(c.length) {
-							static const int HASH_LENGTH = 40;
-							Element cLink = new Element("a", 
-									c[0..8] ~ " " ~ c[HASH_LENGTH + 1..$]);
-							cLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~
-								rName ~ "/" ~ branch ~ "/" ~ c[0..HASH_LENGTH];
 
-							Element linkLI = new Element("li");
-							linkLI ~= cLink;
-							commitList ~= linkLI;
-						}
-					}
-					mBody ~= commitList;
-				}
+				mBody ~= commitPageHandler(repo, branch, 10);
 			}
 		}
 	}
 
 	return mMColumn;
+}
+
+static const int MAX_SUBJECT_LENGTH = 80;
+Element commitPageHandler(Repository repository, string branch, long max = -1) {
+	Repository.Commit[] commits = repository.commits();
+	if(!commits.length)
+		return null;
+
+	if(max == -1)
+		max = commits.length;
+
+	Element mBody = new Element("table");
+		mBody.tag.attr["class"] = "commits";
+
+	Element mBodyHeader = new Element("tr");
+	mBodyHeader ~= new Element("th", "Hash");
+	mBodyHeader ~= new Element("th", "Date");
+	mBodyHeader ~= new Element("th", "Description");
+	mBody ~= mBodyHeader;
+
+	for(long i = 0; i < max; ++i) {
+		string href = URL_BASE ~ URL_PREFIX ~ 
+			repository.name() ~ "/" ~ branch ~ "/" ~ commits[i].hash;
+
+		Element hashData = new Element("td");
+		Element hashLink = new Element("a", commits[i].hash[0..8]);
+			hashLink.tag.attr["href"] = href;
+			hashLink.tag.attr["class"] = "commitAbbrevHash";
+		hashData ~= hashLink;
+
+		Element relDateData = new Element("td");
+		Element relDateLink = new Element("a", commits[i].relDate);
+			relDateLink.tag.attr["href"] = href;
+			relDateLink.tag.attr["class"] = "commitRelDate";
+		relDateData ~= relDateLink;
+
+		Element descData = new Element("td");
+		Element descLink = new Element("a", 
+				commits[i].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
+			descLink.tag.attr["href"] = href;
+			descLink.tag.attr["class"] = "commitDescription";
+		descData ~= descLink;
+
+		Element commitRow = new Element("tr");
+		commitRow ~= hashData;
+		commitRow ~= relDateData;
+		commitRow ~= descData;
+		mBody ~= commitRow;
+	}
+	return mBody;
 }
 
