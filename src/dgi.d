@@ -46,7 +46,7 @@ static string[string] fieldMap;
 static void generateFieldMap() { //{{{
 	fieldMap["__path__"] = "";
 	string queryString = getenv("QUERY_STRING");
-	fieldMap["QUERY_STRING"] = queryString;
+	fieldMap["QUERY_STRING"] = decodeComponent(queryString);
 	if(queryString.length > 0) {
 		string[] tokens = split(queryString, "&");
 
@@ -55,7 +55,6 @@ static void generateFieldMap() { //{{{
 			string key = decodeComponent(fields[0]), value;
 			if(fields.length > 1)
 				value = decodeComponent(fields[1]);
-			bool insert = true;
 			if(!key.length || !value.length)
 				continue;
 			fieldMap[key] = value;
