@@ -1,2 +1,7 @@
 bin/
 *.o
+deploy
+cdeploy
+dgi.bspatch
+dgi.tar.xz
+old.md5sum
