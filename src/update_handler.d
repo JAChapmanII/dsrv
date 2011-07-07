@@ -17,7 +17,20 @@ Element updateHandler(string URL) {
 	} else {
 		string suffix = URL[URL_PREFIX.length..$];
 		if(isNumeric(suffix)) {
-			mBody ~= new Element("p", updates[to!int(suffix)].getContents());
+			int r = to!int(suffix) - 1;
+			if(r >= updates.length)
+				mBody ~= new Element("p", "no post this high");
+			else {
+				string c = updates[r].getContents();
+				try {
+					check(c);
+					mBody ~= new Document(c);
+				} catch(CheckException e) {
+					mBody ~= new Element("p", 
+							"Looks like this post isn't proper XML!");
+					mBody ~= new Element("pre", e.toString());
+				}
+			}
 		} else {
 			mBody ~= new Element("p", "Post requested by title");
 		}
