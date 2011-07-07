@@ -30,8 +30,11 @@ Element codeHandler(string URL) {
 			tableHead ~= new Element("th", "Description");
 			rTable ~= tableHead;
 
+			bool odd = true;
 			foreach(repo; repos) {
 				Element rRow = new Element("tr");
+				if(odd)
+					rRow.tag.attr["class"] = "odd";
 				rRow ~= new Element("td", repo.language());
 				Element linkTD = new Element("td");
 				string names = repo.name();
@@ -48,6 +51,7 @@ Element codeHandler(string URL) {
 				rRow ~= linkTD;
 				rRow ~= new Element("td", repo.description());
 				rTable ~= rRow;
+				odd = !odd;
 			}
 			mBody ~= rTable;
 		} else {
