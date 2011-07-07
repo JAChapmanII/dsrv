@@ -46,13 +46,12 @@ static string[string] fieldMap;
 static void generateFieldMap() { //{{{
 	fieldMap["__path__"] = "";
 	string queryString = getenv("QUERY_STRING");
+	fieldMap["QUERY_STRING"] = queryString;
 	if(queryString.length > 0) {
-		queryString = replace(queryString, "&", " ");
-		string[] tokens = split(queryString);
+		string[] tokens = split(queryString, "&");
 
 		foreach(token; tokens) {
-			token = replace(token, "=", " ");
-			string[] fields = split(token);
+			string[] fields = split(token, "=");
 			string key = decodeComponent(fields[0]), value;
 			if(fields.length > 1)
 				value = decodeComponent(fields[1]);
@@ -181,6 +180,7 @@ void main(string[] args) {
 		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 
 	Handler[] handlers;
+	handlers ~= Handler(r"^$", &updateHandler);
 	handlers ~= Handler(r"^about/", &aboutHandler);
 	handlers ~= Handler(r"^about$", &aboutHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
