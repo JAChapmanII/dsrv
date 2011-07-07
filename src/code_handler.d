@@ -41,9 +41,19 @@ Element codeHandler(string URL) {
 			while(count(rName, '/'))
 				rName = dirname(rName);
 
+			// look for repo by primary name
 			foreach(r; repos)
 				if(r.name == rName)
 					repo = r;
+
+			// look for repo by secondary name if we didn't find it yet
+			if(repo is null)
+				foreach(r; repos)
+					foreach(altName; r.alternateNames)
+						if(altName == rName)
+							// change rName to be the primary name, too
+							repo = r, rName = r.name;
+
 			if(repo is null) {
 				mBody ~= new Element("p", "No repository by that name");
 			} else {
