@@ -22,7 +22,7 @@ Element codeHandler(string URL) {
 	if(!repos.length) {
 		mBody ~= new Element("p", "There are no repositories");
 	} else {
-		if(URL == "code") {
+		if((URL == "code") || (URL == "code/")) {
 			Element rTable = new Element("table");
 			Element tableHead = new Element("tr");
 			tableHead ~= new Element("th", "Language");
@@ -56,8 +56,19 @@ Element codeHandler(string URL) {
 			mBody ~= rTable;
 		} else {
 			Repository repo;
-			string rName = URL[URL_PREFIX.length..$];
-			string branch = "master";
+			string[] rfields = split(URL[URL_PREFIX.length..$], "/");
+
+			string rName = rfields[0], branch, commit, file;
+			if(rfields.length > 1)
+				branch = rfields[1];
+			if(rfields.length > 2)
+				commit = rfields[2];
+			if(rfields.length > 3)
+				file = rfields[3];
+
+			if(!branch.length)
+				branch = "master";
+
 			while(count(rName, '/'))
 				rName = dirname(rName);
 
@@ -84,30 +95,30 @@ Element codeHandler(string URL) {
 
 				string[] files = repo.files();
 				if(files.length) {
-					foreach(file; files) {
-						if(file == "README") {
-							Element readme = new Element("pre", repo.getFile(file));
+					foreach(f; files) {
+						if(f == "README") {
+							Element readme = new Element("pre", repo.getFile(f));
 								readme.tag.attr["class"] = "quote";
 							mBody ~= readme;
 						}
 					}
 
 					Element fileList = new Element("ul");
-					foreach(file; files)
-						if(file.length)
-							fileList ~= new Element("li", file);
+					foreach(f; files)
+						if(f.length)
+							fileList ~= new Element("li", f);
 					mBody ~= fileList;
 				}
 				string[] commits = repo.commits();
 				if(commits.length) {
 					Element commitList = new Element("ul");
-					foreach(commit; commits) {
-						if(commit.length) {
+					foreach(c; commits) {
+						if(c.length) {
 							static const int HASH_LENGTH = 40;
 							Element cLink = new Element("a", 
-									commit[0..8] ~ " " ~ commit[HASH_LENGTH + 1..$]);
+									c[0..8] ~ " " ~ c[HASH_LENGTH + 1..$]);
 							cLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~
-								rName ~ "/" ~ branch ~ "/" ~ commit[0..HASH_LENGTH];
+								rName ~ "/" ~ branch ~ "/" ~ c[0..HASH_LENGTH];
 
 							Element linkLI = new Element("li");
 							linkLI ~= cLink;
