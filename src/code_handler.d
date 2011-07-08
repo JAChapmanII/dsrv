@@ -151,9 +151,14 @@ Element repositoryListingHandler(Repository repository, string branch) {
 		if(!file.length)
 			continue;
 		Element fileRow = new Element("tr");
-		Repository.Commit[] fCommits = repository.commitsToFile(file);
-
 		fileRow ~= new Element("td", file);
+
+		Repository.Commit[] fCommits = repository.commitsToFile(file, branch, 1);
+		if(!fCommits.length) {
+			fileRow ~= new Element("td", "Could not load data");
+			continue;
+		}
+
 		fileRow ~= new Element("td", fCommits[0].relDate);
 
 		string href = URL_BASE ~ URL_PREFIX ~ 
