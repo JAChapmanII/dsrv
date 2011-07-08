@@ -26,6 +26,10 @@ Element updateHandler(string URL) {
 	if(!updates.length) {
 		mBody ~= new Element("p", "There are no updates");
 	} else {
+		if(URL == "updates")
+			URL = "update";
+		if((URL.length > 6) && (URL[6] == 's'))
+			URL = URL[0..5] ~ URL[6..$];
 		if((URL == "update") || (URL == "update/all") || !URL.length) {
 			for(long i = updates.length - 1; i >= 0; --i) {
 				Element post;

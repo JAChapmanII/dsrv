@@ -201,8 +201,8 @@ void main(string[] args) {
 	handlers ~= Handler(r"^about$", &aboutHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
 	handlers ~= Handler(r"^code$", &codeHandler);
-	handlers ~= Handler(r"^update/", &updateHandler);
-	handlers ~= Handler(r"^update$", &updateHandler);
+	handlers ~= Handler(r"^updates?/", &updateHandler);
+	handlers ~= Handler(r"^updates?$", &updateHandler);
 
 	try {
 		// create html tag
