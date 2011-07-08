@@ -134,7 +134,7 @@ class Repository {
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				string suff = " " ~ branch ~ " -- " ~ fName;
+				string suff = " " ~ branch ~ " -- \"" ~ fName ~ "\"";
 				if(max > 0)
 					suff = " -n " ~ to!string(max) ~ suff;
 				cos = shell(comm ~ suff);
