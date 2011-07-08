@@ -9,9 +9,10 @@ static const string REPOS_DIR = "code";
 
 class Repository {
 	public:
-		this(string iLangauge, string iName, string iDescription, 
-				string[] iAlternateNames) {
+		this(string iLangauge, string iDefaultBranch, string iName,
+				string iDescription, string[] iAlternateNames) {
 			this._language = iLangauge;
+			this._defaultBranch = iDefaultBranch;
 			this._name = iName;
 			this._description = iDescription;
 			this._alternateNames = iAlternateNames;
@@ -23,11 +24,13 @@ class Repository {
 				return repositories;
 			foreach(line; splitlines(readText(REPOS_FILE))) {
 				string[] fields = split(line, "|");
+				string[] names = split(fields[2], ",");
 				string[] altNames;
-				if(fields[3].length)
-					altNames = split(fields[3]);
+				foreach(n; names[1..$])
+					altNames ~= strip(n);
 				repositories ~= new Repository(
-						fields[0], fields[1], fields[2], altNames);
+						strip(fields[0]), strip(fields[1]), strip(names[0]), 
+						strip(fields[3]), altNames);
 			}
 			return repositories;
 		}
@@ -47,9 +50,12 @@ class Repository {
 			return split(r, "\0");
 		}
 
-		string getFile(string fName, string branch = "master") {
+		string getFile(string fName, string branch = "") {
 			if(!isDir(REPOS_DIR))
 				return null;
+
+			if(!branch.length)
+				branch = this._defaultBranch;
 
 			string c;
 			try {
@@ -114,6 +120,10 @@ class Repository {
 			return this._language;
 		}
 
+		string defaultBranch() {
+			return this._defaultBranch;
+		}
+
 		string name() {
 			return this._name;
 		}
@@ -128,6 +138,7 @@ class Repository {
 
 	protected:
 		string _language;
+		string _defaultBranch;
 		string _name;
 		string _description;
 		string[] _alternateNames;

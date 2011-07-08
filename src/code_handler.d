@@ -30,6 +30,7 @@ Element codeHandler(string URL) {
 			Element rTable = new Element("table");
 			Element tableHead = new Element("tr");
 			tableHead ~= new Element("th", "Language");
+			tableHead ~= new Element("th", "Branch");
 			tableHead ~= new Element("th", "Name");
 			tableHead ~= new Element("th", "Description");
 			rTable ~= tableHead;
@@ -39,9 +40,11 @@ Element codeHandler(string URL) {
 				Element rRow = new Element("tr");
 				if(odd)
 					rRow.tag.attr["class"] = "odd";
-				rRow ~= new Element("td", repo.language());
+				rRow ~= new Element("td", repo.language);
+				rRow ~= new Element("td", repo.defaultBranch);
+
 				Element linkTD = new Element("td");
-				string names = repo.name();
+				string names = repo.name;
 				if(repo.alternateNames.length)
 					names ~= ", ";
 				for(int i = 0; i < repo.alternateNames.length; ++i) {
@@ -50,10 +53,10 @@ Element codeHandler(string URL) {
 						names ~= ", ";
 				}
 				Element rLink = new Element("a", names);
-				rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name();
+				rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
 				linkTD ~= rLink;
 				rRow ~= linkTD;
-				rRow ~= new Element("td", repo.description());
+				rRow ~= new Element("td", repo.description);
 				rTable ~= rRow;
 				odd = !odd;
 			}
@@ -89,6 +92,7 @@ Element codeHandler(string URL) {
 
 			if(repo is null) {
 				mBody ~= new Element("p", "No repository by that name");
+				mBody ~= new Comment(rName);
 			} else {
 				if(command == "commits") {
 					mBody ~= commitPageHandler(repo, branch);
