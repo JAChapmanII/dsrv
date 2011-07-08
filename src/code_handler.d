@@ -111,14 +111,12 @@ Element codeHandler(string URL) {
 				mBody ~= new Element("p", "Branches: " ~ branches);
 
 				mBody ~= commitPageHandler(repo, branch, 3);
+				mBody ~= new Element("p");
 
 				string[] files = repo.files();
 				if(files.length) {
-					Element fileList = new Element("ul");
-					foreach(f; files)
-						if(f.length)
-							fileList ~= new Element("li", f);
-					mBody ~= fileList;
+					mBody ~= repositoryListingHandler(repo, branch);
+					mBody ~= new Element("p");
 
 					foreach(f; files) {
 						if(f == "README") {
@@ -134,6 +132,43 @@ Element codeHandler(string URL) {
 	}
 
 	return mMColumn;
+}
+
+Element repositoryListingHandler(Repository repository, string branch) {
+	string[] files = repository.files;
+	if(!files.length)
+		return null;
+
+	Element fileListing = new Element("table");
+
+	Element listingHeader = new Element("tr");
+	listingHeader ~= new Element("th", "Name");
+	listingHeader ~= new Element("th", "Date");
+	listingHeader ~= new Element("th", "Commit Subject");
+	fileListing ~= listingHeader;
+
+	foreach(file; files) {
+		if(!file.length)
+			continue;
+		Element fileRow = new Element("tr");
+		Repository.Commit[] fCommits = repository.commitsToFile(file);
+
+		fileRow ~= new Element("td", file);
+		fileRow ~= new Element("td", fCommits[0].relDate);
+
+		string href = URL_BASE ~ URL_PREFIX ~ 
+			repository.name() ~ "/" ~ branch ~ "/" ~ fCommits[0].hash;
+		Element descData = new Element("td");
+		Element descLink = new Element("a", 
+				fCommits[0].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
+			descLink.tag.attr["href"] = href;
+			descLink.tag.attr["class"] = "commitDescription";
+		descData ~= descLink;
+		fileRow ~= descData;
+		fileListing ~= fileRow;
+	}
+
+	return fileListing;
 }
 
 static const int MAX_SUBJECT_LENGTH = 80;
