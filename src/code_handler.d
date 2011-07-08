@@ -99,18 +99,27 @@ Element codeHandler(string URL) {
 					return mMColumn;
 				}
 
-				mBody ~= new Element("p", "Clone this repository:");
-				Element cloneCommand = new Element("p", CLONE_PREIX ~ rName);
+				Element cloneCommand = new Element("p", 
+						"Clone this repository: " ~ CLONE_PREIX ~ rName);
 					cloneCommand.tag.attr["class"] = "code";
 				mBody ~= cloneCommand;
 
-				string[] branches = repo.branches();
-				foreach(b; branches)
-					if(b.length)
-						mBody ~= new Element("p", "Branch: " ~ b);
+				string branches;
+				foreach(b; repo.branches)
+					branches ~= b ~ ", ";
+				branches = branches[0..$ - 2];
+				mBody ~= new Element("p", "Branches: " ~ branches);
+
+				mBody ~= commitPageHandler(repo, branch, 3);
 
 				string[] files = repo.files();
 				if(files.length) {
+					Element fileList = new Element("ul");
+					foreach(f; files)
+						if(f.length)
+							fileList ~= new Element("li", f);
+					mBody ~= fileList;
+
 					foreach(f; files) {
 						if(f == "README") {
 							mBody ~= new Element("p", "README:");
@@ -119,15 +128,7 @@ Element codeHandler(string URL) {
 							mBody ~= readme;
 						}
 					}
-
-					Element fileList = new Element("ul");
-					foreach(f; files)
-						if(f.length)
-							fileList ~= new Element("li", f);
-					mBody ~= fileList;
 				}
-
-				mBody ~= commitPageHandler(repo, branch, 10);
 			}
 		}
 	}
