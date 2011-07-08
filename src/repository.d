@@ -42,7 +42,7 @@ class Repository {
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				r = shell("git ls-tree -z --name-only master");
+				r = shell("git ls-tree -r -z --name-only master");
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
@@ -120,20 +120,24 @@ class Repository {
 			return commits;
 		}
 
-		Commit[] commitsToFile(string fName, string branch = "") {
+		Commit[] commitsToFile(string fName, string branch = "", int max = 0) {
 			if(!isDir(REPOS_DIR))
 				return null;
 
 			if(!branch.length)
 				branch = this.defaultBranch;
 
+			string comm = "git log --pretty='%H%x00%ar%x00%s' ";
+
 			Commit[] commits;
 			string cos;
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				cos = shell("git log --pretty='%H%x00%ar%x00%s' " ~ branch ~ 
-						" -- " ~ fName);
+				string suff = " " ~ branch ~ " -- " ~ fName;
+				if(max > 0)
+					suff = " -n " ~ to!string(max) ~ suff;
+				cos = shell(comm ~ suff);
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
