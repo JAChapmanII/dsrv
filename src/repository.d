@@ -55,7 +55,7 @@ class Repository {
 				return null;
 
 			if(!branch.length)
-				branch = this._defaultBranch;
+				branch = this.defaultBranch;
 
 			string c;
 			try {
@@ -91,16 +91,20 @@ class Repository {
 			string subject;
 		}
 
-		Commit[] commits() {
+		Commit[] commits(string branch = "") {
 			if(!isDir(REPOS_DIR))
 				return null;
+
+			if(!branch.length)
+				branch = this.defaultBranch;
 
 			Commit[] commits;
 			string cos;
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				cos = shell("git log --pretty='%H%x00%ar%x00%s'");
+				cos = shell("git log " ~ this.defaultBranch ~
+						" --pretty='%H%x00%ar%x00%s'");
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
