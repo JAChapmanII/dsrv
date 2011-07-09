@@ -201,7 +201,8 @@ Element getUpdatesRSS() {
 	foreach(i, update; updates) {
 		Element uItem = new Element("item");
 		uItem ~= new Element("title", update.title);
-		uItem ~= new Element("link", 
+		uItem ~= new Element("description", update.title);
+		uItem ~= new Element("link",
 				URL_BASE ~ "updates/" ~ to!string(update.number));
 		uItem ~= new Element("guid", to!string(update.number));
 		uItem ~= new Element("pubDate", update.date ~ " " ~ update.time);
