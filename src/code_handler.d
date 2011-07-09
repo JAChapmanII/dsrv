@@ -169,8 +169,13 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 		args = args[1..$];
 	}
 
+	string fname;
+	foreach(arg; args)
+		fname ~= arg ~ "/";
+	fname = fname[0..$-1];
+
 	string[] files = repository.files;
-	if(!canFind(files, args[0])) {
+	if(!canFind(files, fname)) {
 		Element repoP = new Element("p", 
 				"This file does not appear to be part of the repository.");
 		Element repoLink = new Element("a", "Back to repository page");
@@ -180,7 +185,7 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 		return mBody;
 	}
 
-	string file = repository.getFile(args[0], branch);
+	string file = repository.getFile(fname, branch);
 	Element mFile = new Element("pre", file);
 		mFile.tag.attr["class"] = "code";
 	mBody ~= mFile;
