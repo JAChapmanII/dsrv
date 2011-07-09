@@ -142,6 +142,8 @@ Element getHeader(string URL) { //{{{
 	Element header = new Element("p");
 	Element homeLink = new Element("a", "Home");
 		homeLink.tag.attr["href"] = URL_BASE;
+	Element rssLink = new Element("a", "RSS Feed");
+		rssLink.tag.attr["href"] = URL_BASE ~ UPDATES_RSS_FILE;
 	Element aboutLink = new Element("a", "About");
 		aboutLink.tag.attr["href"] = URL_BASE ~ "about";
 	Element codeLink = new Element("a", "Code");
@@ -154,6 +156,7 @@ Element getHeader(string URL) { //{{{
 		cValidatorLink.tag.attr["href"] = cValidatorBase ~ URL_BASE ~ URL;
 
 	header ~= homeLink; header ~= tab;
+	header ~= rssLink; header ~= tab;
 	header ~= aboutLink; header ~= tab;
 	header ~= codeLink; header ~= tab;
 	header ~= contactLink; header ~= tab;
