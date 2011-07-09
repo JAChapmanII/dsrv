@@ -154,10 +154,11 @@ Element codeHandler(string URL) {
 Element fileViewerHandler(Repository repository, string branch, string[] args) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "fviewer";
+	Element repoLink = new Element("a", "Back to repository page");
+		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+
 	if(!args.length) {
 		Element repoP = new Element("p", "No file specified.");
-		Element repoLink = new Element("a", "Back to repository page");
-			repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 		repoP ~= repoLink;
 		mBody ~= repoP;
 		return mBody;
@@ -178,8 +179,6 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 	if(!canFind(files, fname)) {
 		Element repoP = new Element("p", 
 				"This file does not appear to be part of the repository.");
-		Element repoLink = new Element("a", "Back to repository page");
-			repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 		repoP ~= repoLink;
 		mBody ~= repoP;
 		return mBody;
@@ -192,6 +191,10 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 
 	if(raw)
 		mBody ~= new Element("p", "Can't display raw files yet");
+
+	Element repoP = new Element("p");
+	repoP ~= repoLink;
+	mBody ~= repoP;
 	return mBody;
 }
 
