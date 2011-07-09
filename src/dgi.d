@@ -240,7 +240,7 @@ void main(string[] args) {
 			mBody ~= getFooter(fieldMap["__path__"]);
 		mHTML ~= mBody;
 
-		writeln(join(mHTML.pretty(2), "\n"));
+		writeln(replace(join(mHTML.pretty(2), "\n"), regex(r"\0", "g"), "\\0"));
 	} catch(Exception e) {
 		writeln(getDefaultErrorPage());
 		writeln("<!-- " ~ e.toString() ~ " -->");
