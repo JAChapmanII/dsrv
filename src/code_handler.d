@@ -109,9 +109,12 @@ Element codeHandler(string URL) {
 							"Repository does not appear to have branches?");
 					return mMColumn;
 				}
+
 				string branches;
 				foreach(b; repo.branches)
-					branches ~= b ~ ", ";
+					if(b.length)
+						branches ~= b ~ ", ";
+				branches = branches[0..$-2];
 				mBody ~= new Element("p", "Branches: " ~ branches);
 
 				mBody ~= commitPageHandler(repo, branch, 3);
