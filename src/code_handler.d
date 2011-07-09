@@ -98,6 +98,7 @@ Element codeHandler(string URL) {
 				mBody ~= new Element("p", "No repository by that name");
 				mBody ~= new Comment(rName);
 			} else {
+				mBody ~= new Element("p", repo.name ~ " -- " ~ repo.description);
 				switch(command) {
 					case "commits":
 						mBody ~= commitPageHandler(repo, branch);
