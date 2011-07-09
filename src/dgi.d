@@ -9,11 +9,16 @@ import std.regex;
 
 import std.file, std.string;
 
+import std.datetime, std.conv, std.algorithm;
+
 import about_handler, code_handler, update_handler;
+import update;
 
 static const string CSS_FILE = "style.css";
 static const string URL_BASE = "http://jachapmanii.net/~jac/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
+
+static const string UPDATES_RSS_FILE = "updates.rss";
 
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
@@ -176,6 +181,33 @@ Element getFooter(string URL) { //{{{
 	return footerContainer;
 } //}}}
 
+Element getUpdatesRSS() {
+	Element rss = new Element("rss");
+		rss.tag.attr["version"] = "2.0";
+
+	Update[] updates = Update.parseUDates(); reverse(updates);
+	Element channel = new Element("channel");
+		channel ~= new Element("title", "~jac updates");
+		channel ~= new Element("description", "Updates from Jeff Chapman");
+		channel ~= new Element("link", URL_BASE);
+		channel ~= new Element("lastBuildDate",
+				updates[0].date ~ " " ~ updates[0].time);
+		channel ~= new Element("pubDate", 
+				updates[0].date ~ " " ~ updates[0].time);
+
+	foreach(i, update; updates) {
+		Element uItem = new Element("item");
+		uItem ~= new Element("title", update.title);
+		uItem ~= new Element("link", 
+				URL_BASE ~ "updates/" ~ to!string(update.number));
+		uItem ~= new Element("guid", to!string(update.number));
+		uItem ~= new Element("pubDate", update.date ~ " " ~ update.time);
+		channel ~= uItem;
+	}
+	rss ~= channel;
+	return rss;
+}
+
 void main(string[] args) {
 	TickDuration start = TickDuration.currSystemTick();
 
@@ -186,6 +218,15 @@ void main(string[] args) {
 		writeln("Content-type: text/css\n");
 		writeln(getCSS());
 		writeln("/* ", (TickDuration.currSystemTick() - start).msecs(), " */");
+		return;
+	}
+	if((args.length > 2) || (fieldMap["__path__"] == UPDATES_RSS_FILE)) {
+		writeln("Content-type: application/rss+xml\n");
+		writeln("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+		Element updatesRSS = getUpdatesRSS();
+		writeln(replace(
+					join(updatesRSS.pretty(2), "\n"), regex(r"\0", "g"), "\\0"));
+		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 		return;
 	}
 
