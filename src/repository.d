@@ -85,7 +85,17 @@ class Repository {
 			} catch(Exception e) {
 				return null;
 			}
-			return split(branches, "\n");
+			string[] barr = split(branches, "\n");
+			string[] ret;
+			foreach(i, b; barr)
+				if(!b.length)
+					continue;
+				else if(b[0] == '*')
+					ret ~= strip(b[2..$]);
+				else
+					ret ~= strip(b);
+
+			return ret;
 		}
 
 		struct Commit {
