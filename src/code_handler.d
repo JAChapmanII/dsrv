@@ -126,7 +126,7 @@ Element codeHandler(string URL) {
 					mBody ~= new Element("p");
 
 					foreach(f; files) {
-						if(f == "README") {
+						if((toupper(f) == "README") || (tolower(f) == "readme.txt")) {
 							mBody ~= new Element("p", "README:");
 							Element readme = new Element("pre", repo.getFile(f));
 								readme.tag.attr["class"] = "readme";
