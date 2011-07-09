@@ -25,6 +25,9 @@ class Repository {
 			foreach(line; splitlines(readText(REPOS_FILE))) {
 				string[] fields = split(line, "|");
 				string[] names = split(fields[2], ",");
+				string rdir = REPOS_DIR ~ "/" ~ names[0];
+				//if(!exists(rdir))
+					//continue;
 				string[] altNames;
 				foreach(n; names[1..$])
 					altNames ~= strip(n);
