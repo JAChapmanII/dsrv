@@ -99,7 +99,7 @@ Element codeHandler(string URL) {
 				mBody ~= new Element("p", repo.name ~ " -- " ~ repo.description);
 				switch(command) {
 					case "commits":
-						mBody ~= commitPageHandler(repo, args);
+						mBody ~= commitsPageHandler(repo, args);
 						return mMColumn;
 					case "files":
 						mBody ~= fileViewerHandler(repo, args);
@@ -126,7 +126,7 @@ Element codeHandler(string URL) {
 				branches = branches[0..$-2];
 				mBody ~= new Element("p", "Branches: " ~ branches);
 
-				mBody ~= commitPageHandler(repo, args, 3);
+				mBody ~= commitsPageHandler(repo, args, 3);
 				Element commitPageLink = new Element("a", "Full commit list");
 					commitPageLink.tag.attr["href"] = 
 						URL_BASE ~ URL_PREFIX ~ repo.name ~ "/commits";
@@ -154,18 +154,22 @@ Element codeHandler(string URL) {
 	return mMColumn;
 }
 
+Element repositoryErrorPage(Repository repository, string errorMessage) {
+	Element error = new Element("p", errorMessage);
+	Element repoLink = new Element("a", "Back to repository page");
+		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+	error ~= repoLink;
+	return error;
+}
+
 Element fileViewerHandler(Repository repository, string[] args) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "fviewer";
 	Element repoLink = new Element("a", "Back to repository page");
 		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 
-	if(args.length < 2) {
-		Element repoP = new Element("p", "No file specified.");
-		repoP ~= repoLink;
-		mBody ~= repoP;
-		return mBody;
-	}
+	if(args.length < 2)
+		return repositoryErrorPage(repository, "No file specified");
 
 	string branch = args[0];
 	if(!branch.length)
@@ -179,11 +183,8 @@ Element fileViewerHandler(Repository repository, string[] args) {
 
 	string[] files = repository.files;
 	if(!canFind(files, fname)) {
-		Element repoP = new Element("p", 
+		return repositoryErrorPage(repository, 
 				"This file does not appear to be part of the repository.");
-		repoP ~= repoLink;
-		mBody ~= repoP;
-		return mBody;
 	}
 
 	string file = repository.getFile(fname, branch);
@@ -207,6 +208,9 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 		branch = repository.defaultBranch;
 	else
 		branch = args[0];
+	if(!canFind(repository.branches, branch))
+		return repositoryErrorPage(repository,
+				"Could not find that branch (" ~ branch ~ ").");
 
 	Element fileListing = new Element("table");
 
@@ -236,7 +240,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 		fileRow ~= new Element("td", fCommits[0].relDate);
 
 		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/commtis/" ~ branch ~ "/" ~ fCommits[0].hash;
+			repository.name() ~ "/commtis/" ~ fCommits[0].hash;
 		Element descData = new Element("td");
 		Element descLink = new Element("a", 
 				fCommits[0].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
@@ -250,9 +254,14 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 	return fileListing;
 }
 
+Element commitPageHandler(Repository repository, string[] args) {
+	return repositoryErrorPage(repository, 
+			"Can't handle individual commits yet.");
+}
+
 static const int MAX_SUBJECT_LENGTH = 80;
 // Make a listing of the first max commits of a repository as a nice table
-Element commitPageHandler(
+Element commitsPageHandler(
 		Repository repository, string[] args, long max = -1) { //{{{
 	Repository.Commit[] commits = repository.commits();
 	if(!commits.length)
@@ -263,6 +272,11 @@ Element commitPageHandler(
 		branch = repository.defaultBranch;
 	else
 		branch = args[0];
+	if(branch.length == 40)
+		return commitPageHandler(repository, args);
+	if(!canFind(repository.branches, branch))
+		return repositoryErrorPage(repository,
+				"Could not find that branch (" ~ branch ~ ").");
 
 	if(max == -1)
 		max = commits.length;
@@ -280,7 +294,7 @@ Element commitPageHandler(
 
 	for(long i = 0; i < max; ++i) {
 		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/commits/" ~ branch ~ "/" ~ commits[i].hash;
+			repository.name() ~ "/commits/" ~ commits[i].hash;
 
 		Element hashData = new Element("td");
 		Element hashLink = new Element("a", commits[i].hash[0..8]);
