@@ -76,8 +76,6 @@ Element codeHandler(string URL) {
 			foreach(i, field; rfields)
 				mBody ~= new Comment("rfields[" ~ to!string(i) ~ "] = " ~ field);
 
-			string branch = "master";
-
 			while(count(rName, '/'))
 				rName = dirname(rName);
 
@@ -101,10 +99,10 @@ Element codeHandler(string URL) {
 				mBody ~= new Element("p", repo.name ~ " -- " ~ repo.description);
 				switch(command) {
 					case "commits":
-						mBody ~= commitPageHandler(repo, branch);
+						mBody ~= commitPageHandler(repo, args);
 						return mMColumn;
 					case "files":
-						mBody ~= fileViewerHandler(repo, branch, args);
+						mBody ~= fileViewerHandler(repo, args);
 						return mMColumn;
 					default:
 						break;
@@ -128,12 +126,16 @@ Element codeHandler(string URL) {
 				branches = branches[0..$-2];
 				mBody ~= new Element("p", "Branches: " ~ branches);
 
-				mBody ~= commitPageHandler(repo, branch, 3);
+				mBody ~= commitPageHandler(repo, args, 3);
+				Element commitPageLink = new Element("a", "Full commit list");
+					commitPageLink.tag.attr["href"] = 
+						URL_BASE ~ URL_PREFIX ~ repo.name ~ "/commits";
+				mBody ~= commitPageLink;
 				mBody ~= new Element("p");
 
 				string[] files = repo.files();
 				if(files.length) {
-					mBody ~= repositoryListingHandler(repo, branch);
+					mBody ~= repositoryListingHandler(repo, args);
 					mBody ~= new Element("p");
 
 					foreach(f; files) {
@@ -152,24 +154,23 @@ Element codeHandler(string URL) {
 	return mMColumn;
 }
 
-Element fileViewerHandler(Repository repository, string branch, string[] args) {
+Element fileViewerHandler(Repository repository, string[] args) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "fviewer";
 	Element repoLink = new Element("a", "Back to repository page");
 		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 
-	if(!args.length) {
+	if(args.length < 2) {
 		Element repoP = new Element("p", "No file specified.");
 		repoP ~= repoLink;
 		mBody ~= repoP;
 		return mBody;
 	}
 
-	bool raw;
-	if((args.length > 1) && (args[0] == "raw")) {
-		raw = true;
-		args = args[1..$];
-	}
+	string branch = args[0];
+	if(!branch.length)
+		branch = repository.defaultBranch;
+	args = args[1..$];
 
 	string fname;
 	foreach(arg; args)
@@ -190,19 +191,22 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 		mFile.tag.attr["class"] = "code";
 	mBody ~= mFile;
 
-	if(raw)
-		mBody ~= new Element("p", "Can't display raw files yet");
-
 	Element repoP = new Element("p");
 	repoP ~= repoLink;
 	mBody ~= repoP;
 	return mBody;
 }
 
-Element repositoryListingHandler(Repository repository, string branch) {
+Element repositoryListingHandler(Repository repository, string[] args) {
 	string[] files = repository.files;
 	if(!files.length)
 		return null;
+	
+	string branch;
+	if(!args.length)
+		branch = repository.defaultBranch;
+	else
+		branch = args[0];
 
 	Element fileListing = new Element("table");
 
@@ -218,8 +222,8 @@ Element repositoryListingHandler(Repository repository, string branch) {
 		Element fileRow = new Element("tr");
 		Element fileLinkTD = new Element("td");
 		Element fileLink = new Element("a", file);
-			fileLink.tag.attr["href"] = 
-				URL_BASE ~ URL_PREFIX ~ repository.name ~ "/files/" ~ file;
+			fileLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name ~
+				"/files/" ~ branch ~ "/" ~ file;
 		fileLinkTD ~= fileLink;
 		fileRow ~= fileLinkTD;
 
@@ -232,7 +236,7 @@ Element repositoryListingHandler(Repository repository, string branch) {
 		fileRow ~= new Element("td", fCommits[0].relDate);
 
 		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/" ~ branch ~ "/" ~ fCommits[0].hash;
+			repository.name() ~ "/commtis/" ~ branch ~ "/" ~ fCommits[0].hash;
 		Element descData = new Element("td");
 		Element descLink = new Element("a", 
 				fCommits[0].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
@@ -249,10 +253,16 @@ Element repositoryListingHandler(Repository repository, string branch) {
 static const int MAX_SUBJECT_LENGTH = 80;
 // Make a listing of the first max commits of a repository as a nice table
 Element commitPageHandler(
-		Repository repository, string branch, long max = -1) { //{{{
+		Repository repository, string[] args, long max = -1) { //{{{
 	Repository.Commit[] commits = repository.commits();
 	if(!commits.length)
 		return null;
+
+	string branch;
+	if(!args.length)
+		branch = repository.defaultBranch;
+	else
+		branch = args[0];
 
 	if(max == -1)
 		max = commits.length;
@@ -270,7 +280,7 @@ Element commitPageHandler(
 
 	for(long i = 0; i < max; ++i) {
 		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/" ~ branch ~ "/" ~ commits[i].hash;
+			repository.name() ~ "/commits/" ~ branch ~ "/" ~ commits[i].hash;
 
 		Element hashData = new Element("td");
 		Element hashLink = new Element("a", commits[i].hash[0..8]);
