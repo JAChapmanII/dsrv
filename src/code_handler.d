@@ -104,10 +104,14 @@ Element codeHandler(string URL) {
 					cloneCommand.tag.attr["class"] = "code";
 				mBody ~= cloneCommand;
 
+				if(!repo.branches) {
+					mBody ~= new Element("p", 
+							"Repository does not appear to have branches?");
+					return mMColumn;
+				}
 				string branches;
 				foreach(b; repo.branches)
 					branches ~= b ~ ", ";
-				branches = branches[0..$ - 2];
 				mBody ~= new Element("p", "Branches: " ~ branches);
 
 				mBody ~= commitPageHandler(repo, branch, 3);
