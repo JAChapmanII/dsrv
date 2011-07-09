@@ -68,6 +68,10 @@ Element codeHandler(string URL) {
 			string rName = rfields[0], command;
 			if(rfields.length > 1)
 				command = rfields[1];
+			string[] args;
+			if(rfields.length > 2)
+				foreach(arg; rfields[2..$])
+					args ~= arg;
 
 			foreach(i, field; rfields)
 				mBody ~= new Comment("rfields[" ~ to!string(i) ~ "] = " ~ field);
@@ -94,9 +98,15 @@ Element codeHandler(string URL) {
 				mBody ~= new Element("p", "No repository by that name");
 				mBody ~= new Comment(rName);
 			} else {
-				if(command == "commits") {
-					mBody ~= commitPageHandler(repo, branch);
-					return mMColumn;
+				switch(command) {
+					case "commits":
+						mBody ~= commitPageHandler(repo, branch);
+						return mMColumn;
+					case "files":
+						mBody ~= fileViewerHandler(repo, branch, args);
+						return mMColumn;
+					default:
+						break;
 				}
 
 				Element cloneCommand = new Element("p", 
@@ -141,6 +151,21 @@ Element codeHandler(string URL) {
 	return mMColumn;
 }
 
+Element fileViewerHandler(Repository repository, string branch, string[] args) {
+	Element mBody = new Element("div");
+		mBody.tag.attr["class"] = "fviewer";
+	if(!args.length) {
+		Element repoP = new Element("p", "No file specified.");
+		Element repoLink = new Element("a", "Back to repository page");
+			repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+		repoP ~= repoLink;
+		mBody ~= repoP;
+		return mBody;
+	}
+	mBody ~= new Element("p", "Can't display files yet");
+	return mBody;
+}
+
 Element repositoryListingHandler(Repository repository, string branch) {
 	string[] files = repository.files;
 	if(!files.length)
@@ -158,7 +183,12 @@ Element repositoryListingHandler(Repository repository, string branch) {
 		if(!file.length)
 			continue;
 		Element fileRow = new Element("tr");
-		fileRow ~= new Element("td", file);
+		Element fileLinkTD = new Element("td");
+		Element fileLink = new Element("a", file);
+			fileLink.tag.attr["href"] = 
+				URL_BASE ~ URL_PREFIX ~ repository.name ~ "/files/" ~ file;
+		fileLinkTD ~= fileLink;
+		fileRow ~= fileLinkTD;
 
 		Repository.Commit[] fCommits = repository.commitsToFile(file, branch, 1);
 		if(!fCommits.length) {
