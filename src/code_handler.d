@@ -162,7 +162,31 @@ Element fileViewerHandler(Repository repository, string branch, string[] args) {
 		mBody ~= repoP;
 		return mBody;
 	}
-	mBody ~= new Element("p", "Can't display files yet");
+
+	bool raw;
+	if((args.length > 1) && (args[0] == "raw")) {
+		raw = true;
+		args = args[1..$];
+	}
+
+	string[] files = repository.files;
+	if(!canFind(files, args[0])) {
+		Element repoP = new Element("p", 
+				"This file does not appear to be part of the repository.");
+		Element repoLink = new Element("a", "Back to repository page");
+			repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+		repoP ~= repoLink;
+		mBody ~= repoP;
+		return mBody;
+	}
+
+	string file = repository.getFile(args[0], branch);
+	Element mFile = new Element("pre", file);
+		mFile.tag.attr["class"] = "code";
+	mBody ~= mFile;
+
+	if(raw)
+		mBody ~= new Element("p", "Can't display raw files yet");
 	return mBody;
 }
 
