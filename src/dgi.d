@@ -55,7 +55,7 @@ static void generateFieldMap() { //{{{
 			string key = decodeComponent(fields[0]), value;
 			if(fields.length > 1)
 				value = decodeComponent(fields[1]);
-			if(!key.length || !value.length)
+			if(!key.length)
 				continue;
 			fieldMap[key] = value;
 		}
@@ -86,7 +86,8 @@ Element defaultHandler(string URL) { //{{{
 		mBody ~= new Element("p", "fieldMap: ");
 		Element ul = new Element("ul");
 		foreach(key; fieldMap.keys)
-			ul ~= new Element("li", key ~ " -> " ~ fieldMap[key]);
+			ul ~= new Element("li", key ~ 
+					((fieldMap[key].length) ? " -> " : " ") ~ fieldMap[key]);
 		mBody ~= ul;
 	}
 
