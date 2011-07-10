@@ -4,6 +4,7 @@ import std.algorithm;
 import std.string;
 
 import std.conv;
+import std.regex;
 
 import repository;
 
@@ -63,7 +64,7 @@ Element codeHandler(string URL) {
 			mBody ~= rTable;
 		} else {
 			Repository repo;
-			string[] rfields = split(URL[URL_PREFIX.length..$], "/");
+			string[] rfields = std.string.split(URL[URL_PREFIX.length..$], "/");
 
 			string rName = rfields[0], command;
 			if(rfields.length > 1)
@@ -255,28 +256,27 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 }
 
 Element colorizeDiff(string diff) {
-	string[] lines = split(diff, "\n");
-	Element result = new Element("pre");
-		result.tag.attr["class"] = "code";
+	string[] lines = std.string.split(diff, "\n");
+	string result = "<div class=\"code\">\n";
 	foreach(line; lines) {
 		if(!line.length) {
-			result ~= new Text("");
-		} else if(line[0] == '+') {
-			Element addSpan = new Element("span", line);
-				addSpan.tag.attr["class"] = "dadd";
-			result ~= addSpan;
+			result ~= "<br />";
+			continue;
+		}
+		line = replace(expandtabs(line, 4), regex(r"\s", "g"), "&#160;");
+		result ~= "<span class=\"";
+		if(line[0] == '+') {
+			result ~= "dadd";
 		} else if(line[0] == '-') {
-			Element subtractSpan = new Element("span", line);
-				subtractSpan.tag.attr["class"] = "dsubtract";
-			result ~= subtractSpan;
+			result ~= "dsubtract";
 		} else if(line[0] == '@') {
-			Element contextSpan = new Element("span", line);
-				contextSpan.tag.attr["class"] = "dcontext";
-			result ~= contextSpan;
+			result ~= "dcontext";
 		} else
-			result ~= new Text(line);
+			result ~= "dplain";
+		result ~= "\">" ~ line ~ "</span><br />\n";
 	}
-	return result;
+	result ~= "</div>";
+	return new Document(result);
 }
 
 Element commitPageHandler(Repository repository, string[] args) {
