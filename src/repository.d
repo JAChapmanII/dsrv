@@ -133,6 +133,21 @@ class Repository {
 			return commits;
 		}
 
+		string getCommitDiff(Commit commit) {
+			// TODO: some sort of file not existant thing
+
+			string diff;
+			try {
+				string cwd = getcwd();
+				chdir(REPOS_DIR ~ "/" ~ this._name);
+				diff = shell("git diff-tree -p " ~ commit.hash);
+				chdir(cwd);
+			} catch(Exception e) {
+				return null;
+			}
+			return diff;
+		}
+
 		Commit[] commitsToFile(string fName, string branch = "", int max = 0) {
 			if(!isDir(REPOS_DIR))
 				return null;
