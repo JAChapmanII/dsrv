@@ -254,6 +254,31 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 	return fileListing;
 }
 
+Element colorizeDiff(string diff) {
+	string[] lines = split(diff, "\n");
+	Element result = new Element("pre");
+		result.tag.attr["class"] = "code";
+	foreach(line; lines) {
+		if(!line.length) {
+			result ~= new Text("");
+		} else if(line[0] == '+') {
+			Element addSpan = new Element("span", line);
+				addSpan.tag.attr["class"] = "dadd";
+			result ~= addSpan;
+		} else if(line[0] == '-') {
+			Element subtractSpan = new Element("span", line);
+				subtractSpan.tag.attr["class"] = "dsubtract";
+			result ~= subtractSpan;
+		} else if(line[0] == '@') {
+			Element contextSpan = new Element("span", line);
+				contextSpan.tag.attr["class"] = "dcontext";
+			result ~= contextSpan;
+		} else
+			result ~= new Text(line);
+	}
+	return result;
+}
+
 Element commitPageHandler(Repository repository, string[] args) {
 	Element commitPage = new Element("div");
 		commitPage.tag.attr["class"] = "commitp";
@@ -271,9 +296,7 @@ Element commitPageHandler(Repository repository, string[] args) {
 		return repositoryErrorPage(repository, 
 				"Could not find that commit, sorry.");
 
-	Element diffBox = new Element("pre", repository.getCommitDiff(commit));
-		diffBox.tag.attr["class"] = "code";
-	commitPage ~= diffBox;
+	commitPage ~= colorizeDiff(repository.getCommitDiff(commit));
 	commitPage ~= repoLink;
 	return commitPage;
 }
