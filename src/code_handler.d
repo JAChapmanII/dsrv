@@ -240,7 +240,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 		fileRow ~= new Element("td", fCommits[0].relDate);
 
 		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/commtis/" ~ fCommits[0].hash;
+			repository.name() ~ "/commits/" ~ fCommits[0].hash;
 		Element descData = new Element("td");
 		Element descLink = new Element("a", 
 				fCommits[0].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
@@ -296,7 +296,12 @@ Element commitPageHandler(Repository repository, string[] args) {
 		return repositoryErrorPage(repository, 
 				"Could not find that commit, sorry.");
 
-	commitPage ~= colorizeDiff(repository.getCommitDiff(commit));
+	string diff = repository.getCommitDiff(commit);
+	if(diff.length)
+		commitPage ~= colorizeDiff(diff);
+	else
+		commitPage ~= new Element("p", "This is the initial commit");
+
 	commitPage ~= repoLink;
 	return commitPage;
 }
