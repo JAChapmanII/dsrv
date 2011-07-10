@@ -255,8 +255,27 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 }
 
 Element commitPageHandler(Repository repository, string[] args) {
-	return repositoryErrorPage(repository, 
-			"Can't handle individual commits yet.");
+	Element commitPage = new Element("div");
+		commitPage.tag.attr["class"] = "commitp";
+	Element repoLink = new Element("a", "Back to repository page");
+		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+	
+	Repository.Commit[] commits = repository.commits;
+	bool found;
+	Repository.Commit commit;
+	foreach(c; commits)
+		if(c.hash == args[0])
+			commit = c, found = true;
+
+	if(!found)
+		return repositoryErrorPage(repository, 
+				"Could not find that commit, sorry.");
+
+	Element diffBox = new Element("pre", repository.getCommitDiff(commit));
+		diffBox.tag.attr["class"] = "code";
+	commitPage ~= diffBox;
+	commitPage ~= repoLink;
+	return commitPage;
 }
 
 static const int MAX_SUBJECT_LENGTH = 80;
@@ -272,7 +291,7 @@ Element commitsPageHandler(
 		branch = repository.defaultBranch;
 	else
 		branch = args[0];
-	if(branch.length == 40)
+	if(branch.length == HASH_LENGTH)
 		return commitPageHandler(repository, args);
 	if(!canFind(repository.branches, branch))
 		return repositoryErrorPage(repository,
