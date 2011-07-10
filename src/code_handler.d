@@ -263,7 +263,7 @@ Element colorizeDiff(string diff) {
 			result ~= "<br />";
 			continue;
 		}
-		line = replace(expandtabs(line, 4), regex(r"\s", "g"), "&#160;");
+		line = replace(expandtabs(encode(line), 4), regex(r"\s", "g"), "&#160;");
 		result ~= "<span class=\"";
 		if(line[0] == '+') {
 			result ~= "dadd";
