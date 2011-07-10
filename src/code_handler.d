@@ -296,6 +296,10 @@ Element commitPageHandler(Repository repository, string[] args) {
 		return repositoryErrorPage(repository, 
 				"Could not find that commit, sorry.");
 
+	commitPage ~= new Element("p",
+			"Commit " ~ commit.hash ~ " -- " ~ commit.relDate);
+	commitPage ~= new Element("p", commit.subject);
+
 	string diff = repository.getCommitDiff(commit);
 	if(diff.length)
 		commitPage ~= colorizeDiff(diff);
