@@ -14,6 +14,9 @@ Element updateHandler(string URL) {
 	mBody.tag.attr["class"] = "scol";
 	mMColumn ~= mBody;
 
+	if(URL == "index.html")
+		URL = "";
+
 	Element spacer = new Document("<p>&#160;</p>");
 	spacer.tag.attr["style"] = "line-height:0;clear:both";
 

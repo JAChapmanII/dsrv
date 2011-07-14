@@ -245,6 +245,7 @@ void main(string[] args) {
 
 	Handler[] handlers;
 	handlers ~= Handler(r"^$", &updateHandler);
+	handlers ~= Handler(r"^index.html$", &updateHandler);
 	handlers ~= Handler(r"^about/", &aboutHandler);
 	handlers ~= Handler(r"^about$", &aboutHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
