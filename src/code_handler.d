@@ -9,7 +9,7 @@ import std.regex;
 import repository;
 
 static const string URL_PREFIX = "code/";
-static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string URL_BASE = "http://jachapmanii.net/";
 
 static const string CLONE_PREIX = "git clone git git://JAChapmanII.net/";
 

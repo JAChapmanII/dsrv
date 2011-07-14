@@ -4,7 +4,7 @@ import std.conv;
 
 import update;
 
-static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string URL_BASE = "http://jachapmanii.net/";
 static const string URL_PREFIX = "update/";
 
 Element updateHandler(string URL) {

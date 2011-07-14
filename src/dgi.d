@@ -15,7 +15,7 @@ import about_handler, code_handler, update_handler;
 import update;
 
 static const string CSS_FILE = "style.css";
-static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string URL_BASE = "http://jachapmanii.net/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
 
 static const string UPDATES_RSS_FILE = "updates.rss";

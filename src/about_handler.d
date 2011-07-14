@@ -3,7 +3,7 @@ import std.file;
 import std.string;
 
 static const string URL_PREFIX = "about/";
-static const string URL_BASE = "http://jachapmanii.net/~jac/";
+static const string URL_BASE = "http://jachapmanii.net/";
 static const string ABOUT_FILE = "about";
 
 Element aboutHandler(string URL) {
