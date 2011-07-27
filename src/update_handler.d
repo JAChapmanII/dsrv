@@ -49,18 +49,12 @@ Element updateHandler(string URL) {
 			}
 			Element updatesParagraph = new Element("p");
 			Element updatesLink = new Element("a", "List of all updates");
-				updatesLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ "all";
+				updatesLink.tag.attr["href"] = URL_BASE ~ "updates/all";
 			updatesParagraph ~= updatesLink;
 			mBody ~= updatesParagraph;
 		} else if((URL == "update") || (URL == "update/all")) {
 			for(long i = updates.length - 1; i >= 0; --i) {
-				Element post;
-				if(i == updates.length - 1)
-					post = formatUpdate(updates[i], "update ubblue");
-				else if(i < updates.length - 3)
-					post = formatPostHeader(updates[i]);
-				else
-					post = formatUpdate(updates[i], "update ubox");
+				Element post = formatPostHeader(updates[i]);
 
 				if(!(post is null))
 					mBody ~= post;
