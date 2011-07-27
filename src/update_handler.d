@@ -33,7 +33,26 @@ Element updateHandler(string URL) {
 			URL = "update";
 		if((URL.length > 6) && (URL[6] == 's'))
 			URL = URL[0..6] ~ URL[7..$];
-		if((URL == "update") || (URL == "update/all") || !URL.length) {
+		if(!URL.length) {
+			long stop = updates.length - 3;
+			if(stop < 0)
+				stop = 0;
+			for(long i = updates.length - 1; i >= stop; --i) {
+				Element post;
+				if(i == updates.length - 1)
+					post = formatUpdate(updates[i], "update ubblue");
+				else
+					post = formatUpdate(updates[i], "update ubox");
+
+				if(!(post is null))
+					mBody ~= post;
+			}
+			Element updatesParagraph = new Element("p");
+			Element updatesLink = new Element("a", "List of all updates");
+				updatesLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ "all";
+			updatesParagraph ~= updatesLink;
+			mBody ~= updatesParagraph;
+		} else if((URL == "update") || (URL == "update/all")) {
 			for(long i = updates.length - 1; i >= 0; --i) {
 				Element post;
 				if(i == updates.length - 1)
