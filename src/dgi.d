@@ -19,6 +19,7 @@ static const string URL_BASE = "http://jachapmanii.net/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
 
 static const string UPDATES_RSS_FILE = "updates.rss";
+static const string FAVICON_ICO_FILE = "favicon.ico";
 
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
@@ -233,6 +234,12 @@ void main(string[] args) {
 		writeln(replace(
 					join(updatesRSS.pretty(2), "\n"), regex(r"\0", "g"), "\\0"));
 		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
+		return;
+	}
+	if(fieldMap["__path__"] == FAVICON_ICO_FILE) {
+		writeln("Content-type: image/png\n");
+		auto bytes = cast(ubyte[]) read(FAVICON_ICO_FILE, 1024*16);
+		writef("%r", bytes);
 		return;
 	}
 
