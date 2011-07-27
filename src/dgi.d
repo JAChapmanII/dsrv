@@ -153,18 +153,16 @@ Element getHeader(string URL) { //{{{
 		codeLink.tag.attr["href"] = URL_BASE ~ "code";
 	Element contactLink = new Element("a", "Contact");
 		contactLink.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
-	Element hValidatorLink = new Element("a", "Validate HTML");
-		hValidatorLink.tag.attr["href"] = hValidatorBase ~ URL_BASE ~ URL;
-	Element cValidatorLink = new Element("a", "Validate CSS");
-		cValidatorLink.tag.attr["href"] = cValidatorBase ~ URL_BASE ~ URL;
 
 	header ~= homeLink; header ~= tab;
 	header ~= rssLink; header ~= tab;
 	header ~= aboutLink; header ~= tab;
 	header ~= codeLink; header ~= tab;
-	header ~= contactLink; header ~= tab;
-	header ~= hValidatorLink; header ~= tab;
-	header ~= cValidatorLink;
+	header ~= contactLink;
+
+
+	header ~= new Comment("Validate HTML: " ~ hValidatorBase ~ URL_BASE ~ URL ~
+		"\n    Validate CSS: " ~ cValidatorBase ~ URL_BASE ~ URL ~ "\n");
 
 	headerContanier ~= header;
 	return headerContanier;
