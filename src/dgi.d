@@ -145,6 +145,8 @@ Element getHeader(string URL) { //{{{
 	Element header = new Element("p");
 	Element homeLink = new Element("a", "Home");
 		homeLink.tag.attr["href"] = URL_BASE;
+	Element updatesLink = new Element("a", "Updates");
+		updatesLink.tag.attr["href"] = URL_BASE ~ "updates";
 	Element rssLink = new Element("a", "RSS Feed");
 		rssLink.tag.attr["href"] = URL_BASE ~ UPDATES_RSS_FILE;
 	Element aboutLink = new Element("a", "About");
@@ -155,6 +157,7 @@ Element getHeader(string URL) { //{{{
 		contactLink.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
 
 	header ~= homeLink; header ~= tab;
+	header ~= updatesLink; header ~= tab;
 	header ~= rssLink; header ~= tab;
 	header ~= aboutLink; header ~= tab;
 	header ~= codeLink; header ~= tab;
