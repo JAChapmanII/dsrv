@@ -300,22 +300,6 @@ void main(string[] args) {
 				mMeta.tag.attr["content"] = "text/html; charset=UTF-8";
 			mHead ~= mMeta;
 			mHead ~= new Element("title", "~jac");
-			// JQuery and JQuery UI {{{
-			Element mJQueryCSS = new Element("link");
-				mJQueryCSS.tag.attr["rel"] = "stylesheet";
-				mJQueryCSS.tag.attr["type"] = "text/css";
-				mJQueryCSS.tag.attr["href"] = URL_BASE ~ JQUERYCSS_FILE;
-			Element mJQuery = new Element("script", " ");
-				mJQuery.tag.attr["type"] = "text/javascript";
-				mJQuery.tag.attr["src"] = URL_BASE ~ JQUERY_FILE;
-			Element mJQueryUI = new Element("script", " ");
-				mJQueryUI.tag.attr["type"] = "text/javascript";
-				mJQueryUI.tag.attr["src"] = URL_BASE ~ JQUERYUI_FILE;
-
-			mHead ~= mJQueryCSS;
-			mHead ~= mJQuery;
-			mHead ~= mJQueryUI;
-			// }}}
 			Element mStyle = new Element("link");
 				mStyle.tag.attr["rel"] = "stylesheet";
 				mStyle.tag.attr["type"] = "text/css";
