@@ -28,40 +28,12 @@ Element codeHandler(string URL) {
 		mBody ~= new Element("p", "There are no repositories");
 	} else {
 		if((URL == "code") || (URL == "code/")) {
-			Element rTable = new Element("table");
-			Element tableHead = new Element("tr");
-			tableHead ~= new Element("th", "Language");
-			tableHead ~= new Element("th", "Branch");
-			tableHead ~= new Element("th", "Name");
-			tableHead ~= new Element("th", "Description");
-			rTable ~= tableHead;
-
-			bool odd = true;
-			foreach(repo; repos) {
-				Element rRow = new Element("tr");
-				if(odd)
-					rRow.tag.attr["class"] = "odd";
-				rRow ~= new Element("td", repo.language);
-				rRow ~= new Element("td", repo.defaultBranch);
-
-				Element linkTD = new Element("td");
-				string names = repo.name;
-				if(repo.alternateNames.length)
-					names ~= ", ";
-				for(int i = 0; i < repo.alternateNames.length; ++i) {
-					names ~= repo.alternateNames[i];
-					if(i != repo.alternateNames.length - 1)
-						names ~= ", ";
-				}
-				Element rLink = new Element("a", names);
-				rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
-				linkTD ~= rLink;
-				rRow ~= linkTD;
-				rRow ~= new Element("td", repo.description);
-				rTable ~= rRow;
-				odd = !odd;
+			Element codeBody = getRepositoryTable(repos);
+			if(codeBody is null) {
+				mBody ~= new Element("p", "Problem generating the code table");
+			} else {
+				mBody ~= codeBody;
 			}
-			mBody ~= rTable;
 		} else {
 			Repository repo;
 			string[] rfields = std.string.split(URL[URL_PREFIX.length..$], "/");
@@ -153,6 +125,73 @@ Element codeHandler(string URL) {
 	}
 
 	return mMColumn;
+}
+
+Element getRepositoryTable(Repository[] repos) {
+	string lang = "nonexistant language";
+	Element mBody = new Element("div");
+		mBody.tag.attr["id"] = "tabs";
+	Element tabList = new Element("ul");
+	mBody ~= tabList;
+
+	string[] languages;
+	Element rTable;
+	Element rTableDiv;
+	bool odd;
+	int tabCount;
+	foreach(repo; repos) {
+		if(repo.language != lang) {
+			lang = repo.language;
+			tabCount++;
+
+			Element tab = new Element("li");
+			Element tabLink = new Element("a", repo.language);
+				tabLink.tag.attr["href"] = "#tabs-" ~ to!string(tabCount);
+			tab ~= tabLink;
+			tabList ~= tab;
+
+			languages ~= repo.language;
+			if(!(rTableDiv is null))
+				mBody ~= rTableDiv;
+
+			rTable = new Element("table");
+			Element tableHead = new Element("tr");
+			tableHead ~= new Element("th", "Branch");
+			tableHead ~= new Element("th", "Name");
+			tableHead ~= new Element("th", "Description");
+			rTable ~= tableHead;
+
+			rTableDiv = new Element("div");
+				rTableDiv.tag.attr["id"] = "tabs-" ~ to!string(tabCount);
+			rTableDiv ~= rTable;
+
+			odd = true;
+		}
+
+		Element rRow = new Element("tr");
+		if(odd)
+			rRow.tag.attr["class"] = "odd";
+		Element defaultBranch = new Element("td", repo.defaultBranch);
+			defaultBranch.tag.attr["class"] = "branch";
+		rRow ~= defaultBranch;
+
+		Element linkTD = new Element("td");
+			linkTD.tag.attr["class"] = "name";
+		Element rLink = new Element("a", repo.name);
+		if(repo.alternateNames.length)
+			rLink = new Element("a",
+				repo.name ~ std.string.join(repo.alternateNames, ", "));
+			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
+		linkTD ~= rLink;
+		rRow ~= linkTD;
+		Element description = new Element("td", repo.description);
+			description.tag.attr["class"] = "description";
+		rRow ~= description;
+		rTable ~= rRow;
+		odd = !odd;
+	}
+	mBody ~= rTableDiv;
+	return mBody;
 }
 
 Element repositoryErrorPage(Repository repository, string errorMessage) {
