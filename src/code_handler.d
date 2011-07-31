@@ -31,7 +31,6 @@ Element codeHandler(string URL) {
 			if(codeBody is null) {
 				mBody ~= new Element("p", "Problem generating the code table");
 			} else {
-				mBody ~= new Element("p", " ");
 				mBody ~= codeBody;
 			}
 		} else {
