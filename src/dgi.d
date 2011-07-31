@@ -21,6 +21,7 @@ static const string UPDATES_RSS_FILE = "updates.rss";
 static const string FAVICON_ICO_FILE = "favicon.ico";
 
 static const string CSS_FILE = "style.css";
+static const string JS_FILE = "js/main.js";
 static const string JQUERY_FILE = "js/jquery-1.6.2.min.js";
 static const string JQUERYUI_FILE = "js/jquery-ui-1.8.14.custom.min.js";
 static const string JQUERYCSS_FILE = "css/jac/jquery-ui-1.8.14.custom.css";
@@ -290,24 +291,31 @@ void main(string[] args) {
 				mMeta.tag.attr["content"] = "text/html; charset=UTF-8";
 			mHead ~= mMeta;
 			mHead ~= new Element("title", "~jac");
+			// JQuery and JQuery UI {{{
+			Element mJQueryCSS = new Element("link");
+				mJQueryCSS.tag.attr["rel"] = "stylesheet";
+				mJQueryCSS.tag.attr["type"] = "text/css";
+				mJQueryCSS.tag.attr["href"] = URL_BASE ~ JQUERYCSS_FILE;
+			Element mJQuery = new Element("script", " ");
+				mJQuery.tag.attr["type"] = "text/javascript";
+				mJQuery.tag.attr["src"] = URL_BASE ~ JQUERY_FILE;
+			Element mJQueryUI = new Element("script", " ");
+				mJQueryUI.tag.attr["type"] = "text/javascript";
+				mJQueryUI.tag.attr["src"] = URL_BASE ~ JQUERYUI_FILE;
+
+			mHead ~= mJQueryCSS;
+			mHead ~= mJQuery;
+			mHead ~= mJQueryUI;
+			// }}}
 			Element mStyle = new Element("link");
 				mStyle.tag.attr["rel"] = "stylesheet";
 				mStyle.tag.attr["type"] = "text/css";
 				mStyle.tag.attr["href"] = URL_BASE ~ CSS_FILE;
 			mHead ~= mStyle;
-			Element mJQueryUI = new Element("link");
-				mJQueryUI.tag.attr["type"] = "text/javascript";
-				mJQueryUI.tag.attr["href"] = URL_BASE ~ JQUERYUI_FILE;
-			mHead ~= mJQueryUI;
-			Element mJQuery = new Element("link");
-				mJQuery.tag.attr["type"] = "text/javascript";
-				mJQuery.tag.attr["href"] = URL_BASE ~ JQUERY_FILE;
-			mHead ~= mJQuery;
-			Element mJQueryCSS = new Element("link");
-				mJQueryCSS.tag.attr["rel"] = "stylesheet";
-				mJQueryCSS.tag.attr["type"] = "text/css";
-				mJQueryCSS.tag.attr["href"] = URL_BASE ~ JQUERYCSS_FILE;
-			mHead ~= mJQueryCSS;
+			Element mJS = new Element("script", " ");
+				mJS.tag.attr["type"] = "text/javascript";
+				mJS.tag.attr["src"] = URL_BASE ~ JS_FILE;
+			mHead ~= mJS;
 		mHTML ~= mHead;
 
 
