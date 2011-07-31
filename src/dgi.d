@@ -150,16 +150,22 @@ Element getHeader(string URL) { //{{{
 	Element header = new Element("p");
 	Element homeLink = new Element("a", "Home");
 		homeLink.tag.attr["href"] = URL_BASE;
+		homeLink.tag.attr["class"] = "unselected";
 	Element updatesLink = new Element("a", "Updates");
 		updatesLink.tag.attr["href"] = URL_BASE ~ "updates";
+		updatesLink.tag.attr["class"] = "unselected";
 	Element rssLink = new Element("a", "RSS Feed");
 		rssLink.tag.attr["href"] = URL_BASE ~ UPDATES_RSS_FILE;
+		rssLink.tag.attr["class"] = "unselected";
 	Element aboutLink = new Element("a", "About");
 		aboutLink.tag.attr["href"] = URL_BASE ~ "about";
+		aboutLink.tag.attr["class"] = "unselected";
 	Element codeLink = new Element("a", "Code");
 		codeLink.tag.attr["href"] = URL_BASE ~ "code";
+		codeLink.tag.attr["class"] = "unselected";
 	Element contactLink = new Element("a", "Contact");
 		contactLink.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
+		contactLink.tag.attr["class"] = "unselected";
 
 	header ~= homeLink; header ~= tab;
 	header ~= updatesLink; header ~= tab;
@@ -168,6 +174,17 @@ Element getHeader(string URL) { //{{{
 	header ~= codeLink; header ~= tab;
 	header ~= contactLink;
 
+	if(!URL.length || (URL == "index.html")) {
+		homeLink.tag.attr["class"] = "selected";
+	} else if(URL == "about") {
+		aboutLink.tag.attr["class"] = "selected";
+	} else if((URL == "updates") || (URL == "update") ||
+			!match(URL, regex(r"^updates?/")).empty()) {
+		updatesLink.tag.attr["class"] = "selected";
+	} else if((URL == "code") ||
+			!match(URL, regex(r"^code/")).empty()) {
+		codeLink.tag.attr["class"] = "selected";
+	}
 
 	header ~= new Comment("Validate HTML: " ~ hValidatorBase ~ URL_BASE ~ URL ~
 		"\n    Validate CSS: " ~ cValidatorBase ~ URL_BASE ~ URL ~ "\n");
@@ -193,7 +210,8 @@ Element getFooter(string URL) { //{{{
 	return footerContainer;
 } //}}}
 
-Element getUpdatesRSS() {
+// Generate an RSS document for the udpates
+Element getUpdatesRSS() { //{{{
 	Element rss = new Element("rss");
 		rss.tag.attr["version"] = "2.0";
 
@@ -219,7 +237,7 @@ Element getUpdatesRSS() {
 	}
 	rss ~= channel;
 	return rss;
-}
+} //}}}
 
 void main(string[] args) {
 	TickDuration start = TickDuration.currSystemTick();
@@ -242,7 +260,8 @@ void main(string[] args) {
 		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 		return;
 	}
-	if(exists(fieldMap["__path__"])) {
+	// If the file exists and is a .png, .ico, .js or .css, serve it directly
+	if(exists(fieldMap["__path__"])) { //{{{
 		bool good = true;
 		string type;
 		if((endsWith(fieldMap["__path__"], ".png")) ||
@@ -267,7 +286,7 @@ void main(string[] args) {
 			writef("%r", bytes);
 			return;
 		}
-	}
+	} //}}}
 
 	writeln("Content-type: text/html\n");
 
@@ -279,7 +298,6 @@ void main(string[] args) {
 	Handler[] handlers;
 	handlers ~= Handler(r"^$", &updateHandler);
 	handlers ~= Handler(r"^index.html$", &updateHandler);
-	handlers ~= Handler(r"^about/", &aboutHandler);
 	handlers ~= Handler(r"^about$", &aboutHandler);
 	handlers ~= Handler(r"^code/", &codeHandler);
 	handlers ~= Handler(r"^code$", &codeHandler);
