@@ -16,23 +16,20 @@ Element updateHandler(string URL) {
 
 	if(URL == "index.html")
 		URL = "";
+	if(URL == "updates")
+		URL = "update";
+	if((URL.length > 6) && (URL[6] == 's'))
+		URL = URL[0..6] ~ URL[7..$];
 
 	Element spacer = new Document("<p>&#160;</p>");
 	spacer.tag.attr["style"] = "line-height:0;clear:both";
 
-	if(URL.length)
-		mBody ~= new Element("h3", URL);
-	else
-		mBody ~= new Element("h3", "Updates/all");
+	mBody ~= new Element("p", " ");
 
 	Update[] updates = Update.parseUDates();
 	if(!updates.length) {
 		mBody ~= new Element("p", "There are no updates");
 	} else {
-		if(URL == "updates")
-			URL = "update";
-		if((URL.length > 6) && (URL[6] == 's'))
-			URL = URL[0..6] ~ URL[7..$];
 		if(!URL.length) {
 			long stop = updates.length - 3;
 			if(stop < 0)
