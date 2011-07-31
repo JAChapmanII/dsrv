@@ -11,7 +11,7 @@ import repository;
 static const string URL_PREFIX = "code/";
 static const string URL_BASE = "http://jachapmanii.net/";
 
-static const string CLONE_PREIX = "git clone git git://JAChapmanII.net/";
+static const string CLONE_PREIX = "git clone git://JAChapmanII.net/";
 
 static const int HASH_LENGTH = 40;
 
@@ -180,7 +180,7 @@ Element getRepositoryTable(Repository[] repos) {
 		Element rLink = new Element("a", repo.name);
 		if(repo.alternateNames.length)
 			rLink = new Element("a",
-				repo.name ~ std.string.join(repo.alternateNames, ", "));
+				repo.name ~ ", " ~ std.string.join(repo.alternateNames, ", "));
 			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
 		linkTD ~= rLink;
 		rRow ~= linkTD;
