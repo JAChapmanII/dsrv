@@ -13,8 +13,6 @@ Element aboutHandler(string URL) {
 		mBody.tag.attr["class"] = "scol";
 	mMBody ~= mBody;
 
-	mBody ~= new Element("h3", "About");
-
 	if(!isFile(ABOUT_FILE)) {
 		mBody ~= new Element("p", "The about page is missing.");
 		return mMBody;

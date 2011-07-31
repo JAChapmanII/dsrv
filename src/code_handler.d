@@ -22,7 +22,6 @@ Element codeHandler(string URL) {
 	mBody.tag.attr["class"] = "scol";
 	mMColumn ~= mBody;
 
-	mBody ~= new Element("h3", capwords(tolower(URL)));
 	Repository[] repos = Repository.parseRepositories();
 	if(!repos.length) {
 		mBody ~= new Element("p", "There are no repositories");
@@ -32,6 +31,7 @@ Element codeHandler(string URL) {
 			if(codeBody is null) {
 				mBody ~= new Element("p", "Problem generating the code table");
 			} else {
+				mBody ~= new Element("p", " ");
 				mBody ~= codeBody;
 			}
 		} else {
