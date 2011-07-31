@@ -243,19 +243,37 @@ void main(string[] args) {
 		return;
 	}
 	if(exists(fieldMap["__path__"])) {
-		bool good = true;
+		bool good = true, gz;
+		string type;
+		if(exists(fieldMap["__path__"] ~ ".gz")) {
+			gz = true;
+			/*
+			writeln("Content-type: application/x-gzip\n");
+			auto bytes = cast(ubyte[])read(fieldMap["__path__"] ~ ".gz", 1024*128);
+			writef("%r", bytes);
+			return;
+			*/
+		}
 		if((endsWith(fieldMap["__path__"], ".png")) ||
 			(endsWith(fieldMap["__path__"], ".ico"))) {
-			writeln("Content-type: image/png\n");
+			type = "image/png";
 		} else if(endsWith(fieldMap["__path__"], ".js")) {
-			writeln("Content-type: text/javascript\n");
+			type = "text/javascript";
 		} else if(endsWith(fieldMap["__path__"], ".css")) {
-			writeln("Content-type: text/css\n");
+			type = "text/css";
 		} else {
 			good = false;
 		}
 		if(good) {
-			auto bytes = cast(ubyte[]) read(fieldMap["__path__"], 1024*128);
+			if(gz)
+				writeln("Content-encoding: gzip\nContent-type: " ~ type ~ "\n");
+			else
+				writeln("Content-type: " ~ type ~ "\n");
+			ubyte[] bytes;
+			if(exists(fieldMap["__path__"] ~ ".gz"))
+				bytes = cast(ubyte[]) read(fieldMap["__path__"] ~ ".gz", 1024*128);
+			else
+				bytes = cast(ubyte[]) read(fieldMap["__path__"], 1024*128);
 			writef("%r", bytes);
 			return;
 		}
