@@ -130,9 +130,7 @@ Element codeHandler(string URL) {
 Element getRepositoryTable(Repository[] repos) {
 	string lang = "nonexistant language";
 	Element mBody = new Element("div");
-		mBody.tag.attr["id"] = "tabs";
-	Element tabList = new Element("ul");
-	mBody ~= tabList;
+		mBody.tag.attr["class"] = "tabbox";
 
 	string[] languages;
 	Element rTable;
@@ -143,12 +141,6 @@ Element getRepositoryTable(Repository[] repos) {
 		if(repo.language != lang) {
 			lang = repo.language;
 			tabCount++;
-
-			Element tab = new Element("li");
-			Element tabLink = new Element("a", repo.language);
-				tabLink.tag.attr["href"] = "#tabs-" ~ to!string(tabCount);
-			tab ~= tabLink;
-			tabList ~= tab;
 
 			languages ~= repo.language;
 			if(!(rTableDiv is null))
@@ -162,7 +154,8 @@ Element getRepositoryTable(Repository[] repos) {
 			rTable ~= tableHead;
 
 			rTableDiv = new Element("div");
-				rTableDiv.tag.attr["id"] = "tabs-" ~ to!string(tabCount);
+				rTableDiv.tag.attr["class"] = "tab";
+				rTableDiv.tag.attr["title"] = repo.language;
 			rTableDiv ~= rTable;
 
 			odd = true;
