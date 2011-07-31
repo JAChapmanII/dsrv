@@ -14,12 +14,16 @@ import std.datetime, std.conv, std.algorithm;
 import about_handler, code_handler, update_handler;
 import update;
 
-static const string CSS_FILE = "style.css";
 static const string URL_BASE = "http://jachapmanii.net/";
 static const string ADMIN_EMAIL = "jac@JAChapmanII.net";
 
 static const string UPDATES_RSS_FILE = "updates.rss";
 static const string FAVICON_ICO_FILE = "favicon.ico";
+
+static const string CSS_FILE = "style.css";
+static const string JQUERY_FILE = "js/jquery-1.6.2.min.js";
+static const string JQUERYUI_FILE = "js/jquery-ui-1.8.14.custom.min.js";
+static const string JQUERYCSS_FILE = "css/jac/jquery-ui-1.8.14.custom.css";
 
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
@@ -243,6 +247,17 @@ void main(string[] args) {
 		writef("%r", bytes);
 		return;
 	}
+	if((startsWith(fieldMap["__path__"], "css/")) ||
+		(startsWith(fieldMap["__path__"], "js/"))) {
+		if(exists(fieldMap["__path__"])) {
+			if(fieldMap["__path__"][0] == 'j')
+				writeln("Content-type: text/javascript\n");
+			else
+				writeln("Content-type: text/css\n");
+			writeln(readText(fieldMap["__path__"]));
+			return;
+		}
+	}
 
 	writeln("Content-type: text/html\n");
 
@@ -280,6 +295,19 @@ void main(string[] args) {
 				mStyle.tag.attr["type"] = "text/css";
 				mStyle.tag.attr["href"] = URL_BASE ~ CSS_FILE;
 			mHead ~= mStyle;
+			Element mJQueryUI = new Element("link");
+				mJQueryUI.tag.attr["type"] = "text/javascript";
+				mJQueryUI.tag.attr["href"] = URL_BASE ~ JQUERYUI_FILE;
+			mHead ~= mJQueryUI;
+			Element mJQuery = new Element("link");
+				mJQuery.tag.attr["type"] = "text/javascript";
+				mJQuery.tag.attr["href"] = URL_BASE ~ JQUERY_FILE;
+			mHead ~= mJQuery;
+			Element mJQueryCSS = new Element("link");
+				mJQueryCSS.tag.attr["rel"] = "stylesheet";
+				mJQueryCSS.tag.attr["type"] = "text/css";
+				mJQueryCSS.tag.attr["href"] = URL_BASE ~ JQUERYCSS_FILE;
+			mHead ~= mJQueryCSS;
 		mHTML ~= mHead;
 
 
