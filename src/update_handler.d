@@ -1,6 +1,7 @@
 import std.xml;
 import std.string;
 import std.conv;
+import std.regex;
 
 import update;
 
@@ -143,10 +144,10 @@ Element formatPostHeader(Update update) {
 	pTitle.tag.attr["class"] = "utitle lcol";
 	pTitle.tag.attr["href"] = 
 		URL_BASE ~ URL_PREFIX ~ to!string(update.number);
-	Element pDT = new Element("span", update.date ~ " " ~ update.time);
-		pDT.tag.attr["class"] = "udt rcol";
 	postHeader ~= pTitle;
-	postHeader ~= pDT;
+	postHeader ~= new Document("<span class=\"udt rcol\">" ~
+			replace(update.date, regex(" ", "g"), "&#160;") ~ " " ~
+			replace(update.time, regex(" ", "g"), "&#160;") ~ "</span>");
 	return postHeader;
 }
 
