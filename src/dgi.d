@@ -242,20 +242,21 @@ void main(string[] args) {
 		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 		return;
 	}
-	if(fieldMap["__path__"] == FAVICON_ICO_FILE) {
-		writeln("Content-type: image/png\n");
-		auto bytes = cast(ubyte[]) read(FAVICON_ICO_FILE, 1024*16);
-		writef("%r", bytes);
-		return;
-	}
-	if((startsWith(fieldMap["__path__"], "css/")) ||
-		(startsWith(fieldMap["__path__"], "js/"))) {
-		if(exists(fieldMap["__path__"])) {
-			if(fieldMap["__path__"][0] == 'j')
-				writeln("Content-type: text/javascript\n");
-			else
-				writeln("Content-type: text/css\n");
-			writeln(readText(fieldMap["__path__"]));
+	if(exists(fieldMap["__path__"])) {
+		bool good = true;
+		if((endsWith(fieldMap["__path__"], ".png")) ||
+			(endsWith(fieldMap["__path__"], ".ico"))) {
+			writeln("Content-type: image/png\n");
+		} else if(endsWith(fieldMap["__path__"], ".js")) {
+			writeln("Content-type: text/javascript\n");
+		} else if(endsWith(fieldMap["__path__"], ".css")) {
+			writeln("Content-type: text/css\n");
+		} else {
+			good = false;
+		}
+		if(good) {
+			auto bytes = cast(ubyte[]) read(fieldMap["__path__"], 1024*128);
+			writef("%r", bytes);
 			return;
 		}
 	}
