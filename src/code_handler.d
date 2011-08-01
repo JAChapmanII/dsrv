@@ -6,6 +6,8 @@ import std.string;
 import std.conv;
 import std.regex;
 
+import std.array;
+
 import repository;
 
 static const string URL_PREFIX = "code/";
@@ -27,12 +29,20 @@ Element codeHandler(string URL, ref string headers) {
 		mBody ~= new Element("p", "There are no repositories");
 	} else {
 		if((URL == "code") || (URL == "code/")) {
+			mBody ~= new Element("p", " ");
+			Element recentlyModified = getRecentlyModified(repos);
+			if(recentlyModified is null)
+				mBody ~= new Element("p", "Couldn't get recently modified...");
+			else
+				mBody ~= recentlyModified;
+
+			mBody ~= new Element("p", " ");
 			Element codeBody = getRepositoryTable(repos);
-			if(codeBody is null) {
+			if(codeBody is null)
 				mBody ~= new Element("p", "Problem generating the code table");
-			} else {
+			else
 				mBody ~= codeBody;
-			}
+
 		} else {
 			Repository repo;
 			string[] rfields = std.string.split(URL[URL_PREFIX.length..$], "/");
@@ -124,6 +134,48 @@ Element codeHandler(string URL, ref string headers) {
 	}
 
 	return mMColumn;
+}
+
+Element getRecentlyModified(Repository[] repos) {
+	Element mBody = new Element("div");
+		mBody.tag.attr["class"] = "rmod";
+
+	Repository.Commit[][Repository] r_commits;
+	foreach(repo; repos)
+		r_commits[repo] = repo.commits(3);
+
+	uint max = min(3, r_commits.length);
+	for(uint i = 0; i < max; ++i) {
+		mBody ~= new Comment("repos.length: " ~ to!string(repos.length));
+		ulong earliest = 0;
+		foreach(j, repo; repos)
+			if(r_commits[repo][0].timestamp > 
+					r_commits[repos[earliest]][0].timestamp)
+				earliest = j;
+
+		Repository repo = repos[earliest];
+
+		Element np = new Element("p");
+		Element rLink = new Element("a", repo.name);
+		if(repo.alternateNames.length)
+			rLink = new Element("a", repo.name ~ ", " ~ 
+				std.string.join(repo.alternateNames, ", "));
+			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
+		np ~= rLink;
+		np ~= new Text(" -- " ~ repo.description);
+		mBody ~= np;
+
+		mBody ~= commitsPageHandler(repo, null, 3);
+
+		if(earliest == 0)
+			repos = repos[1..$];
+		else if (earliest == repos.length - 1)
+			repos = repos[0..$-1];
+		else
+			repos = repos[0..earliest] ~ repos[earliest+1..$];
+	}
+
+	return mBody;
 }
 
 Element getRepositoryTable(Repository[] repos) {
