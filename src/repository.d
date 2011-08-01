@@ -100,11 +100,12 @@ class Repository {
 
 		struct Commit {
 			string hash;
+			ulong timestamp;
 			string relDate;
 			string subject;
 		}
 
-		Commit[] commits(string branch = "") {
+		Commit[] commits(int count = -1, string branch = "") {
 			if(!isDir(REPOS_DIR))
 				return null;
 
@@ -116,8 +117,12 @@ class Repository {
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				cos = shell("git log " ~ this.defaultBranch ~
-						" --pretty='%H%x00%ar%x00%s'");
+				if(count < 0)
+					cos = shell("git log " ~ this.defaultBranch ~
+							" --pretty='%H%x00%at%x00%ar%x00%s'");
+				else
+					cos = shell("git log " ~ this.defaultBranch ~
+							" --pretty='%H%x00%at%x00%ar%x00%s' -" ~ to!string(count));
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
@@ -126,7 +131,8 @@ class Repository {
 			foreach(c; cs) {
 				if(c.length) {
 					string[] f = split(c, "\0");
-					Commit com = { f[0], f[1], f[2] };
+					Commit com = { f[0], 0, f[2], f[3] };
+					com.timestamp = parse!ulong(f[1]);
 					commits ~= com;
 				}
 			}
@@ -155,7 +161,7 @@ class Repository {
 			if(!branch.length)
 				branch = this.defaultBranch;
 
-			string comm = "git log --pretty='%H%x00%ar%x00%s' ";
+			string comm = "git log --pretty='%H%x00%at%x00%ar%x00%s' ";
 
 			Commit[] commits;
 			string cos;
@@ -174,7 +180,8 @@ class Repository {
 			foreach(c; cs) {
 				if(c.length) {
 					string[] f = split(c, "\0");
-					Commit com = { f[0], f[1], f[2] };
+					Commit com = { f[0], 0, f[2], f[3] };
+					com.timestamp = parse!ulong(f[1]);
 					commits ~= com;
 				}
 			}
