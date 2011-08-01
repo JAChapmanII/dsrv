@@ -11,6 +11,8 @@ import std.file, std.string;
 
 import std.datetime, std.conv, std.algorithm;
 
+import etc.c.zlib;
+
 import about_handler, code_handler, update_handler;
 import update;
 
@@ -43,9 +45,9 @@ string compactifyCSS(string CSS) { //{{{
 
 struct Handler {
 	string r;
-	Element function(string) h;
+	Element function(string, ref string) h;
 
-	this(string iR, Element function(string) iH) {
+	this(string iR, Element function(string, ref string) iH) {
 		r = iR, h = iH;
 	}
 }
@@ -87,7 +89,7 @@ string getCSS() { //{{{
 } //}}}
 
 // Generate basic informative body
-Element defaultHandler(string URL) { //{{{
+Element defaultHandler(string URL, ref string headers) { //{{{
 	Element mMColumn = new Element("div");
 	mMColumn.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");
@@ -138,7 +140,7 @@ Element defaultHandler(string URL) { //{{{
 } //}}}
 
 // Generate the header div
-Element getHeader(string URL) { //{{{
+Element getHeader(string URL, ref string headers) { //{{{
 	string hValidatorBase = "http://validator.w3.org/check?uri=";
 	string cValidatorBase = "http://jigsaw.w3.org/css-validator/validator?uri=";
 	string spaces = "&#160;"; spaces ~= spaces; spaces ~= spaces;
@@ -194,7 +196,7 @@ Element getHeader(string URL) { //{{{
 } //}}}
 
 // Generate the footer div
-Element getFooter(string URL) { //{{{
+Element getFooter(string URL, ref string headers) { //{{{
 	Element footerContainer = new Element("div");
 	footerContainer.tag.attr["class"] = "ffooter";
 
@@ -239,6 +241,54 @@ Element getUpdatesRSS() { //{{{
 	return rss;
 } //}}}
 
+/// Returns a gzipped version of the string
+ubyte[] getGZip(ubyte[] bytes) { //{{{
+	int ret;
+	z_stream strm;
+
+	ret = deflateInit2(&strm, 9, Z_DEFLATED, 15 + 16, 9, Z_DEFAULT_STRATEGY);
+	if(ret != Z_OK)
+		return null;
+
+	ubyte[] com;
+	com.length = deflateBound(&strm, bytes.length);
+
+	strm.next_in = bytes.ptr;
+	strm.avail_in = cast(uint)bytes.length;
+
+	strm.next_out = com.ptr;
+	strm.avail_out = cast(uint)com.length;
+
+	ret = deflate(&strm, Z_FINISH);
+	if(ret == Z_STREAM_ERROR)
+		return null;
+	com.length -= strm.avail_out;
+
+	return com;
+} //}}}
+
+/// Outputs a document, gzipping if it is enabled
+void writeDocument(string text, string headers) { //{{{
+	if(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0) {
+		writeln("Content-encoding: gzip\n" ~ headers);
+		writef("%r", getGZip(cast(ubyte[])text));
+	} else {
+		writeln(headers);
+		writeln(text);
+	}
+} //}}}
+
+/// Outputs a document, gzipping if it is enabled
+void writeDocument(ubyte[] bytes, string headers) { //{{{
+	if(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0) {
+		writeln("Content-encoding: gzip\n" ~ headers);
+		writef("%r", getGZip(bytes));
+	} else {
+		writeln(headers);
+		writef("%r", bytes);
+	}
+} //}}}
+
 void main(string[] args) {
 	TickDuration start = TickDuration.currSystemTick();
 
@@ -246,54 +296,52 @@ void main(string[] args) {
 	generateFieldMap();
 
 	if((args.length > 1) || (fieldMap["__path__"] == CSS_FILE)) {
-		writeln("Content-type: text/css\n");
-		writeln(getCSS());
+		writeDocument(getCSS(),
+				"Cache-control: max-age=60\nContent-type: text/css\n");
 		writeln("/* ", (TickDuration.currSystemTick() - start).msecs(), " */");
 		return;
 	}
 	if((args.length > 2) || (fieldMap["__path__"] == UPDATES_RSS_FILE)) {
-		writeln("Content-type: application/rss+xml\n");
-		writeln("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 		Element updatesRSS = getUpdatesRSS();
-		writeln(replace(
-					join(updatesRSS.pretty(2), "\n"), regex(r"\0", "g"), "\\0"));
+		writeDocument("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" ~
+			replace(join(updatesRSS.pretty(2), "\n"), regex(r"\0", "g"), "\\0"),
+			"Content-type: application/rss+xml\n");
 		writeln("<!-- ", (TickDuration.currSystemTick() - start).msecs(), " -->");
 		return;
 	}
 	// If the file exists and is a .png, .ico, .js or .css, serve it directly
 	if(exists(fieldMap["__path__"])) { //{{{
-		bool good = true;
+		int expires = 60;
+		bool good = false;
 		string type;
 		if((endsWith(fieldMap["__path__"], ".png")) ||
 			(endsWith(fieldMap["__path__"], ".ico"))) {
+			expires = 3600;
 			type = "image/png";
+			good = true;
 		} else if(endsWith(fieldMap["__path__"], ".js")) {
 			type = "text/javascript";
+			good = true;
 		} else if(endsWith(fieldMap["__path__"], ".css")) {
 			type = "text/css";
-		} else {
-			good = false;
+			good = true;
 		}
 		if(good) {
 			ubyte[] bytes;
 			if(exists(fieldMap["__path__"] ~ ".gz")) {
-				writeln("Content-encoding: gzip\nContent-type: " ~ type ~ "\n");
+				writeln("Cache-control: max-age=" ~ to!string(expires) ~
+						"\nContent-encoding: gzip\nContent-type: " ~ type ~ "\n");
 				bytes = cast(ubyte[]) read(fieldMap["__path__"] ~ ".gz", 1024*128);
+				writef("%r", bytes);
 			} else {
-				writeln("Content-type: " ~ type ~ "\n");
 				bytes = cast(ubyte[]) read(fieldMap["__path__"], 1024*128);
+				writeDocument(bytes,
+						"Cache-control: max-age=" ~ to!string(expires) ~
+						"\nContent-type: " ~ type ~ "\n");
 			}
-			writef("%r", bytes);
 			return;
 		}
 	} //}}}
-
-	writeln("Content-type: text/html\n");
-
-	writeln("<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
-		"<!DOCTYPE html\n" ~
-		"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
-		"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 
 	Handler[] handlers;
 	handlers ~= Handler(r"^$", &updateHandler);
@@ -330,7 +378,7 @@ void main(string[] args) {
 		mHTML ~= mHead;
 
 
-		Element function(string) handleURL = &defaultHandler;
+		Element function(string, ref string) handleURL = &defaultHandler;
 
 		foreach(handler; handlers) {
 			auto m = match(fieldMap["__path__"], regex(handler.r, "i"));
@@ -338,14 +386,26 @@ void main(string[] args) {
 				handleURL = handler.h;
 		}
 
+		string headers;
 		Element mBody = new Element("body");
-			mBody ~= getHeader(fieldMap["__path__"]);
-			mBody ~= handleURL(fieldMap["__path__"]);
-			mBody ~= getFooter(fieldMap["__path__"]);
+			mBody ~= getHeader(fieldMap["__path__"], headers);
+			mBody ~= handleURL(fieldMap["__path__"], headers);
+			mBody ~= getFooter(fieldMap["__path__"], headers);
 		mHTML ~= mBody;
 
-		writeln(replace(join(mHTML.pretty(2), "\n"), regex(r"\0", "g"), "\\0"));
+		if(!headers.length)
+			headers = "Cache-control: max-age=60\n";
+		headers ~= "Content-type: text/html\n";
+
+		writeDocument(
+			"<?xml version = \"1.0\" encoding = \"utf-8\" ?>\n" ~
+			"<!DOCTYPE html\n" ~
+			"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
+			"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" ~
+			replace(join(mHTML.pretty(2), "\n"), regex(r"\0", "g"), "\\0"),
+			headers);
 	} catch(Exception e) {
+		writeln("Content-type: text/html\n");
 		writeln(getDefaultErrorPage());
 		writeln("<!-- " ~ e.toString() ~ " -->");
 	}

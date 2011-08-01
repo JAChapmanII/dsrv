@@ -8,7 +8,7 @@ import update;
 static const string URL_BASE = "http://jachapmanii.net/";
 static const string URL_PREFIX = "update/";
 
-Element updateHandler(string URL) {
+Element updateHandler(string URL, ref string headers) {
 	Element mMColumn = new Element("div");
 	mMColumn.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");
@@ -58,6 +58,7 @@ Element updateHandler(string URL) {
 					mBody ~= post;
 			}
 		} else {
+			headers = "Cache-control: max-age=3600\n";
 			string suffix = URL[URL_PREFIX.length..$];
 			int r = cast(int)updates.length + 1;
 			if(isNumeric(suffix)) {

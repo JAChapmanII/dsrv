@@ -6,7 +6,8 @@ static const string URL_PREFIX = "about/";
 static const string URL_BASE = "http://jachapmanii.net/";
 static const string ABOUT_FILE = "about";
 
-Element aboutHandler(string URL) {
+Element aboutHandler(string URL, ref string headers) {
+	headers = "Cache-control: max-age=3600\n";
 	Element mMBody = new Element("div");
 		mMBody.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");

@@ -15,7 +15,7 @@ static const string CLONE_PREIX = "git clone git://JAChapmanII.net/";
 
 static const int HASH_LENGTH = 40;
 
-Element codeHandler(string URL) {
+Element codeHandler(string URL, ref string headers) {
 	Element mMColumn = new Element("div");
 	mMColumn.tag.attr["class"] = "mcol";
 	Element mBody = new Element("div");
