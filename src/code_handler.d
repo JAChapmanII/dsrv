@@ -183,7 +183,13 @@ Element getRepositoryTable(Repository[] repos) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "tabbox";
 
-	string[] languages;
+	int[string] langCount;
+	foreach(repo; repos)
+		if(repo.language in langCount)
+			langCount[repo.language]++;
+		else
+			langCount[repo.language] = 1;
+
 	Element rTable;
 	Element rTableDiv;
 	bool odd;
@@ -193,7 +199,6 @@ Element getRepositoryTable(Repository[] repos) {
 			lang = repo.language;
 			tabCount++;
 
-			languages ~= repo.language;
 			if(!(rTableDiv is null))
 				mBody ~= rTableDiv;
 
@@ -206,7 +211,10 @@ Element getRepositoryTable(Repository[] repos) {
 
 			rTableDiv = new Element("div");
 				rTableDiv.tag.attr["class"] = "tab";
-				rTableDiv.tag.attr["title"] = repo.language;
+				rTableDiv.tag.attr["title"] = repo.language ~ 
+					((langCount[repo.language] > 1) ? 
+						 " (" ~ to!string(langCount[repo.language]) ~ ")" :
+						 "");
 			rTableDiv ~= rTable;
 
 			odd = true;
