@@ -111,7 +111,7 @@ Element codeHandler(string URL, ref string headers) {
 				mBody ~= commitsPageHandler(repo, args, 3);
 				Element commitPageLink = new Element("a", "Full commit list");
 					commitPageLink.tag.attr["href"] = 
-						URL_BASE ~ URL_PREFIX ~ repo.name ~ "/commits";
+						URL_PREFIX ~ repo.name ~ "/commits";
 				mBody ~= commitPageLink;
 				mBody ~= new Element("p");
 
@@ -160,7 +160,7 @@ Element getRecentlyModified(Repository[] repos) {
 		if(repo.alternateNames.length)
 			rLink = new Element("a", repo.name ~ ", " ~ 
 				std.string.join(repo.alternateNames, ", "));
-			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
+			rLink.tag.attr["href"] = URL_PREFIX ~ repo.name;
 		np ~= rLink;
 		np ~= new Text(" -- " ~ repo.description);
 		mBody ~= np;
@@ -233,7 +233,7 @@ Element getRepositoryTable(Repository[] repos) {
 		if(repo.alternateNames.length)
 			rLink = new Element("a",
 				repo.name ~ ", " ~ std.string.join(repo.alternateNames, ", "));
-			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
+			rLink.tag.attr["href"] = URL_PREFIX ~ repo.name;
 		linkTD ~= rLink;
 		rRow ~= linkTD;
 		Element description = new Element("td", repo.description);
@@ -249,7 +249,7 @@ Element getRepositoryTable(Repository[] repos) {
 Element repositoryErrorPage(Repository repository, string errorMessage) {
 	Element error = new Element("p", errorMessage);
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
 	error ~= repoLink;
 	return error;
 }
@@ -258,7 +258,7 @@ Element fileViewerHandler(Repository repository, string[] args) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "fviewer";
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
 
 	if(args.length < 2)
 		return repositoryErrorPage(repository, "No file specified");
@@ -318,7 +318,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 		Element fileRow = new Element("tr");
 		Element fileLinkTD = new Element("td");
 		Element fileLink = new Element("a", file);
-			fileLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name ~
+			fileLink.tag.attr["href"] = repository.name ~
 				"/files/" ~ branch ~ "/" ~ file;
 		fileLinkTD ~= fileLink;
 		fileRow ~= fileLinkTD;
@@ -331,8 +331,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 
 		fileRow ~= new Element("td", fCommits[0].relDate);
 
-		string href = URL_BASE ~ URL_PREFIX ~ 
-			repository.name() ~ "/commits/" ~ fCommits[0].hash;
+		string href = repository.name() ~ "/commits/" ~ fCommits[0].hash;
 		Element descData = new Element("td");
 		Element descLink = new Element("a", 
 				fCommits[0].subject[0..min(MAX_SUBJECT_LENGTH, $)]);
@@ -374,7 +373,7 @@ Element commitPageHandler(Repository repository, string[] args) {
 	Element commitPage = new Element("div");
 		commitPage.tag.attr["class"] = "commitp";
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
 	
 	Repository.Commit[] commits = repository.commits;
 	bool found;
@@ -435,7 +434,7 @@ Element commitsPageHandler(
 	mBody ~= mBodyHeader;
 
 	for(long i = 0; i < max; ++i) {
-		string href = URL_BASE ~ URL_PREFIX ~ 
+		string href = URL_PREFIX ~ 
 			repository.name() ~ "/commits/" ~ commits[i].hash;
 
 		Element hashData = new Element("td");
