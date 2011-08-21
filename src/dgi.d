@@ -402,7 +402,8 @@ void main(string[] args) {
 			"<!DOCTYPE html\n" ~
 			"\tPUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" ~
 			"\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" ~
-			replace(join(mHTML.pretty(2), "\n"), regex(r"\0", "g"), "\\0"),
+			//replace(mHTML.toString(), regex(r"\0", "g"), "\\0"),
+			replace(join(mHTML.pretty(), "\n"), regex(r"\0", "g"), "\\0"),
 			headers);
 	} catch(Exception e) {
 		writeln("Content-type: text/html\n");
