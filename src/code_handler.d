@@ -149,8 +149,8 @@ Element getRecentlyModified(Repository[] repos) {
 		mBody ~= new Comment("repos.length: " ~ to!string(repos.length));
 		ulong earliest = 0;
 		foreach(j, repo; repos)
-			if(r_commits[repo][0].timestamp > 
-					r_commits[repos[earliest]][0].timestamp)
+			if(r_commits[repo].length && (r_commits[repo][0].timestamp > 
+					r_commits[repos[earliest]][0].timestamp))
 				earliest = j;
 
 		Repository repo = repos[earliest];
