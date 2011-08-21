@@ -25,8 +25,6 @@ Element updateHandler(string URL, ref string headers) {
 	Element spacer = new Document("<p>&#160;</p>");
 	spacer.tag.attr["style"] = "line-height:0;clear:both";
 
-	mBody ~= new Element("p", " ");
-
 	Update[] updates = Update.parseUDates();
 	if(!updates.length) {
 		mBody ~= new Element("p", "There are no updates");
@@ -47,10 +45,11 @@ Element updateHandler(string URL, ref string headers) {
 			}
 			Element updatesParagraph = new Element("p");
 			Element updatesLink = new Element("a", "List of all updates");
-				updatesLink.tag.attr["href"] = URL_BASE ~ "updates/all";
+				updatesLink.tag.attr["href"] = URL_BASE ~ "updates";
 			updatesParagraph ~= updatesLink;
 			mBody ~= updatesParagraph;
-		} else if((URL == "update") || (URL == "update/all")) {
+		} else if(URL == "update") {
+			mBody ~= new Element("p", " ");
 			for(long i = updates.length - 1; i >= 0; --i) {
 				Element post = formatPostHeader(updates[i]);
 
@@ -143,8 +142,7 @@ Element formatPostHeader(Update update) {
 	else
 		pTitle = new Element("a", " " ~ to!string(update.number));
 	pTitle.tag.attr["class"] = "utitle lcol";
-	pTitle.tag.attr["href"] = 
-		URL_BASE ~ URL_PREFIX ~ to!string(update.number);
+	pTitle.tag.attr["href"] = URL_PREFIX ~ to!string(update.number);
 	postHeader ~= pTitle;
 	postHeader ~= new Document("<span class=\"udt rcol\">" ~
 			replace(update.date, regex(" ", "g"), "&#160;") ~ " " ~
