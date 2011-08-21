@@ -13,3 +13,5 @@ chmod +x dgi
 mv dgi public_html/j.cgi
 rm dgi.bspatch j.cgi old.md5sum
 
+cp public_html/j.cgi http/
+
