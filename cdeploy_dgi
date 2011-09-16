@@ -1,9 +1,8 @@
 #!/bin/bash
 
 cd ~
+echo "Exctracting..."
 tar xf dgi.tar.xz
-mv bin/dgi public_html/j.cgi
+mv bin/dgi http/j.cgi
 rm dgi.tar.xz
-
-cp public_html/j.cgi http/
 

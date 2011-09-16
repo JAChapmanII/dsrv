@@ -1,17 +1,15 @@
 #!/bin/bash
 
 cd ~
-sum="$(md5sum public_html/j.cgi | awk '{print $1}')"
+sum="$(md5sum http/j.cgi | awk '{print $1}')"
 if [[ "$sum" != "$(cat old.md5sum | awk '{print $1}')" ]]; then
 	echo "j.cgi does not match md5sum"
 	exit 1
 fi
-cp public_html/j.cgi ./
+cp http/j.cgi ./
 echo "Patching..."
 time bspatch j.cgi dgi dgi.bspatch
 chmod +x dgi
-mv dgi public_html/j.cgi
+mv dgi http/j.cgi
 rm dgi.bspatch j.cgi old.md5sum
-
-cp public_html/j.cgi http/
 
