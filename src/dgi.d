@@ -270,7 +270,8 @@ ubyte[] getGZip(ubyte[] bytes) { //{{{
 
 /// Outputs a document, gzipping if it is enabled
 void writeDocument(string text, string headers) { //{{{
-	if(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0) {
+	if(("HTTP_ACCEPT_ENCODING" in environment.toAA()) &&
+			(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0)) {
 		writeln("Content-encoding: gzip\n" ~ headers);
 		writef("%r", getGZip(cast(ubyte[])text));
 	} else {
@@ -281,7 +282,8 @@ void writeDocument(string text, string headers) { //{{{
 
 /// Outputs a document, gzipping if it is enabled
 void writeDocument(ubyte[] bytes, string headers) { //{{{
-	if(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0) {
+	if(("HTTP_ACCEPT_ENCODING" in environment.toAA()) &&
+			(count(environment["HTTP_ACCEPT_ENCODING"], "gzip") > 0)) {
 		writeln("Content-encoding: gzip\n" ~ headers);
 		writef("%r", getGZip(bytes));
 	} else {
