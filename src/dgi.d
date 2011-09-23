@@ -28,6 +28,8 @@ static const string JQUERY_FILE = "js/jquery-1.6.2.min.js";
 static const string JQUERYUI_FILE = "js/jquery-ui-1.8.14.custom.min.js";
 static const string JQUERYCSS_FILE = "css/jac/jquery-ui-1.8.14.custom.css";
 
+static const int MAX_FILE_SIZE = 1024 * 1024 * 16;
+
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
 	CSS = replace(CSS, regex(r"\/\*([^\*]*[^\/])*\*\/", "g"), "");
@@ -201,8 +203,7 @@ Element getFooter(string URL, ref string headers) { //{{{
 	footerContainer.tag.attr["class"] = "ffooter";
 
 	Element footer = new Element("p");
-	footer ~= new Text("If you need to get a hold of me for whatever reason," ~
-			" simply drop me a line: ");
+	footer ~= new Text("My name is Jeff Chapman; You can reach me at: ");
 	Element mailto = new Element("a");
 	mailto.tag.attr["href"] = "mailto:" ~ ADMIN_EMAIL;
 	mailto ~= new Text(ADMIN_EMAIL);
@@ -331,10 +332,10 @@ void main(string[] args) {
 			if(exists(fieldMap["__path__"] ~ ".gz")) {
 				writeln("Cache-control: max-age=" ~ to!string(expires) ~
 						"\nContent-encoding: gzip\nContent-type: " ~ type ~ "\n");
-				bytes = cast(ubyte[]) read(fieldMap["__path__"] ~ ".gz", 1024*128);
+				bytes = cast(ubyte[]) read(fieldMap["__path__"] ~ ".gz", MAX_FILE_SIZE);
 				writef("%r", bytes);
 			} else {
-				bytes = cast(ubyte[]) read(fieldMap["__path__"], 1024*128);
+				bytes = cast(ubyte[]) read(fieldMap["__path__"], MAX_FILE_SIZE);
 				writeDocument(bytes,
 						"Cache-control: max-age=" ~ to!string(expires) ~
 						"\nContent-type: " ~ type ~ "\n");
