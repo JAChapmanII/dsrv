@@ -110,8 +110,7 @@ Element codeHandler(string URL, ref string headers) {
 
 				mBody ~= commitsPageHandler(repo, args, 3);
 				Element commitPageLink = new Element("a", "Full commit list");
-					commitPageLink.tag.attr["href"] = 
-						URL_PREFIX ~ repo.name ~ "/commits";
+					commitPageLink.tag.attr["href"] = repo.name ~ "/commits";
 				mBody ~= commitPageLink;
 				mBody ~= new Element("p");
 
@@ -373,7 +372,8 @@ Element commitPageHandler(Repository repository, string[] args) {
 	Element commitPage = new Element("div");
 		commitPage.tag.attr["class"] = "commitp";
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = "../";
+			//URL_BASE ~ URL_PREFIX ~ repository.name;
 	
 	Repository.Commit[] commits = repository.commits;
 	bool found;
@@ -434,8 +434,7 @@ Element commitsPageHandler(
 	mBody ~= mBodyHeader;
 
 	for(long i = 0; i < max; ++i) {
-		string href = URL_PREFIX ~ 
-			repository.name() ~ "/commits/" ~ commits[i].hash;
+		string href = "commits/" ~ commits[i].hash;
 
 		Element hashData = new Element("td");
 		Element hashLink = new Element("a", commits[i].hash[0..8]);
