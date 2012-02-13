@@ -28,7 +28,7 @@ static const string JQUERY_FILE = "js/jquery-1.6.2.min.js";
 static const string JQUERYUI_FILE = "js/jquery-ui-1.8.14.custom.min.js";
 static const string JQUERYCSS_FILE = "css/jac/jquery-ui-1.8.14.custom.css";
 
-static const int MAX_FILE_SIZE = 1024 * 1024 * 16;
+static const int MAX_FILE_SIZE = 1024 * 1024 * 32;
 
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
@@ -327,6 +327,12 @@ void main(string[] args) {
 			good = true;
 		} else if(endsWith(fieldMap["__path__"], ".css")) {
 			type = "text/css";
+			good = true;
+		} else if(startsWith(fieldMap["__path__"], "dat")) {
+			type = "text/plain";
+			good = true;
+		} else if(startsWith(fieldMap["__path__"], "static")) {
+			type = "text/html";
 			good = true;
 		}
 		if(good) {
