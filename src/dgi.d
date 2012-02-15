@@ -300,7 +300,8 @@ void main(string[] args) {
 
 	if((args.length > 1) || (fieldMap["__path__"] == CSS_FILE)) {
 		writeDocument(getCSS(),
-				"Cache-control: max-age=60\nContent-type: text/css\n");
+				"Cache-control: max-age=" ~ to!string(60 * 60 * 24) ~
+				"\nContent-type: text/css\n");
 		writeln("/* ", (TickDuration.currSystemTick() - start).msecs(), " */");
 		return;
 	}
@@ -314,12 +315,14 @@ void main(string[] args) {
 	}
 	// If the file exists and is a .png, .ico, .js or .css, serve it directly
 	if(exists(fieldMap["__path__"])) { //{{{
-		int expires = 60;
+		// defaults to one day
+		int expires = 60 * 60 * 24;
 		bool good = false;
 		string type;
 		if((endsWith(fieldMap["__path__"], ".png")) ||
 			(endsWith(fieldMap["__path__"], ".ico"))) {
-			expires = 3600;
+			// images expire in a week
+			expires = 3600 * 24 * 7;
 			type = "image/png";
 			good = true;
 		} else if(endsWith(fieldMap["__path__"], ".js")) {
@@ -340,7 +343,8 @@ void main(string[] args) {
 			if(exists(fieldMap["__path__"] ~ ".gz")) {
 				writeln("Cache-control: max-age=" ~ to!string(expires) ~
 						"\nContent-encoding: gzip\nContent-type: " ~ type ~ "\n");
-				bytes = cast(ubyte[]) read(fieldMap["__path__"] ~ ".gz", MAX_FILE_SIZE);
+				bytes = cast(ubyte[])
+					read(fieldMap["__path__"] ~ ".gz", MAX_FILE_SIZE);
 				writef("%r", bytes);
 			} else {
 				bytes = cast(ubyte[]) read(fieldMap["__path__"], MAX_FILE_SIZE);
