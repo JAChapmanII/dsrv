@@ -6,9 +6,9 @@ Building:
 Running:
 	./bin/dgi
 
-	I actually deploy this on a server which is set up to redirect all
-	subdirectories in ~jac/ to this program. The URL it is currently hosted at
-	is JAChapmanII.net/~jac .
+	I actually deploy this on a server which is set up to redirect all non-home
+	subdirectories to this program. The URL it is currently hosted at is
+	JAChapmanII.net .
 
 	If you really want to run this on the command line, google around for how
 	to fake a CGI environment. Mainly, there are some shell variables you
