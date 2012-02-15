@@ -407,7 +407,7 @@ void main(string[] args) {
 		mHTML ~= mBody;
 
 		if(!headers.length)
-			headers = "Cache-control: max-age=60\n";
+			headers = "Cache-control: max-age=" ~ to!string(60 * 60 * 8) ~ "\n";
 		headers ~= "Content-type: text/html\n";
 
 		writeDocument(
