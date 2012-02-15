@@ -110,7 +110,8 @@ Element codeHandler(string URL, ref string headers) {
 
 				mBody ~= commitsPageHandler(repo, args, 3);
 				Element commitPageLink = new Element("a", "Full commit list");
-					commitPageLink.tag.attr["href"] = repo.name ~ "/commits";
+					commitPageLink.tag.attr["href"] =
+						URL_BASE ~ URL_PREFIX ~ repo.name ~ "/commits";
 				mBody ~= commitPageLink;
 				mBody ~= new Element("p");
 
@@ -159,7 +160,7 @@ Element getRecentlyModified(Repository[] repos) {
 		if(repo.alternateNames.length)
 			rLink = new Element("a", repo.name ~ ", " ~ 
 				std.string.join(repo.alternateNames, ", "));
-			rLink.tag.attr["href"] = URL_PREFIX ~ repo.name;
+			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
 		np ~= rLink;
 		np ~= new Text(" -- " ~ repo.description);
 		mBody ~= np;
@@ -232,7 +233,7 @@ Element getRepositoryTable(Repository[] repos) {
 		if(repo.alternateNames.length)
 			rLink = new Element("a",
 				repo.name ~ ", " ~ std.string.join(repo.alternateNames, ", "));
-			rLink.tag.attr["href"] = URL_PREFIX ~ repo.name;
+			rLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repo.name;
 		linkTD ~= rLink;
 		rRow ~= linkTD;
 		Element description = new Element("td", repo.description);
@@ -248,7 +249,7 @@ Element getRepositoryTable(Repository[] repos) {
 Element repositoryErrorPage(Repository repository, string errorMessage) {
 	Element error = new Element("p", errorMessage);
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 	error ~= repoLink;
 	return error;
 }
@@ -257,7 +258,7 @@ Element fileViewerHandler(Repository repository, string[] args) {
 	Element mBody = new Element("div");
 		mBody.tag.attr["class"] = "fviewer";
 	Element repoLink = new Element("a", "Back to repository page");
-		repoLink.tag.attr["href"] = URL_PREFIX ~ repository.name;
+		repoLink.tag.attr["href"] = URL_BASE ~ URL_PREFIX ~ repository.name;
 
 	if(args.length < 2)
 		return repositoryErrorPage(repository, "No file specified");
