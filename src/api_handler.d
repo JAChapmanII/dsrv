@@ -288,7 +288,7 @@ string apiHandler(string URL, ref string headers) {
 		case "commit":
 			return getCommit(ufields[2..$]);
 		default:
-			return "null";
+			return "\"error\":\"that is not an API function\"";
 	}
 }
 
