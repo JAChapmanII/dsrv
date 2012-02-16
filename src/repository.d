@@ -8,7 +8,15 @@ static const string REPOS_FILE = "repos";
 static const string REPOS_DIR = "code";
 
 class Repository {
+
 	public:
+		struct Commit {
+			string hash;
+			ulong timestamp;
+			string relDate;
+			string subject;
+		}
+
 		this(string iLangauge, string iDefaultBranch, string iName,
 				string iDescription, string[] iAlternateNames) {
 			this._language = iLangauge;
@@ -18,7 +26,15 @@ class Repository {
 			this._alternateNames = iAlternateNames;
 		}
 
-		static Repository[] parseRepositories() {
+		static Repository[] repositories() { // {{{
+			if(!_inited) {
+				_repositories = parseRepositories();
+				_inited = true;
+			}
+			return _repositories;
+		} // }}}
+
+		static Repository[] parseRepositories() { // {{{
 			Repository[] repositories;
 			if(!isFile(REPOS_FILE))
 				return repositories;
@@ -36,7 +52,7 @@ class Repository {
 						strip(fields[3]), altNames);
 			}
 			return repositories;
-		}
+		} // }}}
 
 		string[] files() {
 			if(!isDir(REPOS_DIR))
@@ -71,8 +87,9 @@ class Repository {
 			}
 			return c;
 		}
-		
-		string[] branches() {
+
+		// Return the list of available branches in this repository
+		string[] branches() { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
 
@@ -96,14 +113,7 @@ class Repository {
 					ret ~= strip(b);
 
 			return ret;
-		}
-
-		struct Commit {
-			string hash;
-			ulong timestamp;
-			string relDate;
-			string subject;
-		}
+		} // }}}
 
 		Commit[] commits(int count = -1, string branch = "") {
 			if(!isDir(REPOS_DIR))
@@ -214,5 +224,8 @@ class Repository {
 		string _name;
 		string _description;
 		string[] _alternateNames;
+
+		static Repository[] _repositories;
+		static bool _inited;
 }
 
