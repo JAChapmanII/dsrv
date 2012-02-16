@@ -196,7 +196,21 @@ Element getHeader(string URL, ref string headers) { //{{{
 		"\n    Validate CSS: " ~ cValidatorBase ~ URL_BASE ~ URL ~ "\n");
 
 	headerContanier ~= header;
-	return headerContanier;
+
+	Element fheader = new Element("div");
+		fheader.tag.attr["class"] = "header";
+	fheader ~= headerContanier;
+	if(!startsWith(fieldMap["__path__"], "code")) {
+		Element spacer = new Document("<p>&#160;</p>");
+			spacer.tag.attr["style"] = "line-height:0;clear:both";
+		fheader ~= spacer;
+
+		Element mStatus = new Element("div");
+			mStatus.tag.attr["id"] = "status-box";
+			mStatus ~= new Element("p", " ");
+		fheader ~= mStatus;
+	}
+	return fheader;
 } //}}}
 
 // Generate the footer div
