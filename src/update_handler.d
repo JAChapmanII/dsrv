@@ -15,6 +15,11 @@ Element updateHandler(string URL, ref string headers) {
 	mBody.tag.attr["class"] = "scol";
 	mMColumn ~= mBody;
 
+	Element mStatus = new Element("div");
+		mStatus.tag.attr["id"] = "status-box";
+		mStatus ~= new Element("p", " ");
+	mBody ~= mStatus;
+
 	if(URL == "index.html")
 		URL = "";
 	if(URL == "updates")
