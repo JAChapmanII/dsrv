@@ -85,7 +85,9 @@ class Repository {
 			return repositories;
 		} // }}}
 
-		string[] files() {
+		// TODO: other branches
+		// return the list of files in this repository
+		string[] files() { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
 			string r;
@@ -98,9 +100,10 @@ class Repository {
 				return null;
 			}
 			return split(r, "\0");
-		}
+		} // }}}
 
-		string getFile(string fName, string branch = "") {
+		// return the contents of a file on a specified brach
+		string getFile(string fName, string branch = "") { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
 
@@ -117,7 +120,7 @@ class Repository {
 				return null;
 			}
 			return c;
-		}
+		} // }}}
 
 		// Return the list of available branches in this repository
 		string[] branches() { // {{{
@@ -146,7 +149,8 @@ class Repository {
 			return ret;
 		} // }}}
 
-		Commit[] commits(int count = -1, string branch = "") {
+		// Return the list of commits to branch (all, or last count)
+		Commit[] commits(int count = -1, string branch = "") { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
 
@@ -178,7 +182,7 @@ class Repository {
 				}
 			}
 			return commits;
-		}
+		} // }}}
 
 		string getCommitDiff(Commit commit) {
 			// TODO: some sort of file not existant thing
