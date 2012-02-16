@@ -263,7 +263,7 @@ string getCommit(string[] args) {
 		}
 	}
 
-	return res;
+	return res ~ ",\"error\":\"commit not found\"";
 }
 
 string apiHandler(string URL, ref string headers) {
