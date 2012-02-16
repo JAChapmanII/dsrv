@@ -202,7 +202,8 @@ string getContents(string[] args) { // {{{
 // return information about commits or a commit
 string getCommit(string[] args) {
 	if(args.length < 2) {
-		return "\"error\":\"repository, branch, [, commit] args must be given\"";
+		return "\"error\":\"" ~
+			"repository, branch, [, limit|commit] args must be given" ~ "\"";
 	}
 
 	string repo = args[0], branch = args[1];
