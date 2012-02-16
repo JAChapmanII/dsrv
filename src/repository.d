@@ -26,6 +26,37 @@ class Repository {
 			this._alternateNames = iAlternateNames;
 		}
 
+		// obtain a Repository object by name
+		static Repository repository(string name) { // {{{
+			if(!_inited) {
+				_repositories = parseRepositories();
+				_inited = true;
+			}
+			if(_repositories is null || _repositories.length == 0)
+				return null;
+			if(name is null || name.length == 0)
+				return null;
+
+			Repository repo;
+			// look for repo by primary name
+			foreach(r; _repositories) {
+				if(r.name == name) {
+					return r;
+				}
+			}
+
+			// look for repo by secondary name if we didn't find it yet
+			foreach(r; _repositories) {
+				foreach(altName; r.alternateNames) {
+					if(altName == name) {
+						return r;
+					}
+				}
+			}
+
+			return null;
+		} // }}}
+
 		static Repository[] repositories() { // {{{
 			if(!_inited) {
 				_repositories = parseRepositories();

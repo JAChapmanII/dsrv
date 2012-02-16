@@ -16,32 +16,6 @@ static const string URL_BASE = "http://jachapmanii.net/";
 
 static const int HASH_LENGTH = 40;
 
-// obtain a Repository object by name
-Repository getRepository(string name) { // {{{
-	Repository[] repositories = Repository.repositories;
-	if(repositories is null || name is null || name.empty)
-		return null;
-
-	Repository repo;
-	// look for repo by primary name
-	foreach(r; repositories) {
-		if(r.name == name) {
-			return r;
-		}
-	}
-
-	// look for repo by secondary name if we didn't find it yet
-	foreach(r; repositories) {
-		foreach(altName; r.alternateNames) {
-			if(altName == name) {
-				return r;
-			}
-		}
-	}
-
-	return null;
-} // }}}
-
 // return the default status
 string getStatus() {
 	return getStatus("Rediscovering blink-182");
@@ -71,7 +45,7 @@ string getContents(string[] args) {
 	string repo = args[0];
 	string res = "\"repository\":\"" ~ repo ~ "\"";
 
-	Repository trepo = getRepository(repo);
+	Repository trepo = Repository.repository(repo);
 	// if we can't get that repository, return an error
 	if(trepo is null)
 		return res ~ ",\"error\":\"no repository by than name\"";
