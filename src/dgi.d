@@ -13,7 +13,7 @@ import std.datetime, std.conv, std.algorithm;
 
 import etc.c.zlib;
 
-import about_handler, code_handler, update_handler;
+import about_handler, code_handler, update_handler, api_handler;
 import update;
 
 static const string URL_BASE = "http://jachapmanii.net/";
@@ -300,7 +300,7 @@ void main(string[] args) {
 
 	if((args.length > 1) || (fieldMap["__path__"] == CSS_FILE)) {
 		writeDocument(getCSS(),
-				"Cache-control: max-age=" ~ to!string(60 * 60 * 24) ~
+				"Cache-Control: max-age=" ~ to!string(60 * 60 * 24) ~
 				"\nContent-type: text/css\n");
 		writeln("/* ", (TickDuration.currSystemTick() - start).msecs(), " */");
 		return;
@@ -341,7 +341,7 @@ void main(string[] args) {
 		if(good) {
 			ubyte[] bytes;
 			if(exists(fieldMap["__path__"] ~ ".gz")) {
-				writeln("Cache-control: max-age=" ~ to!string(expires) ~
+				writeln("Cache-Control: max-age=" ~ to!string(expires) ~
 						"\nContent-encoding: gzip\nContent-type: " ~ type ~ "\n");
 				bytes = cast(ubyte[])
 					read(fieldMap["__path__"] ~ ".gz", MAX_FILE_SIZE);
@@ -349,7 +349,7 @@ void main(string[] args) {
 			} else {
 				bytes = cast(ubyte[]) read(fieldMap["__path__"], MAX_FILE_SIZE);
 				writeDocument(bytes,
-						"Cache-control: max-age=" ~ to!string(expires) ~
+						"Cache-Control: max-age=" ~ to!string(expires) ~
 						"\nContent-type: " ~ type ~ "\n");
 			}
 			return;
@@ -364,6 +364,19 @@ void main(string[] args) {
 	handlers ~= Handler(r"^code$", &codeHandler);
 	handlers ~= Handler(r"^updates?/", &updateHandler);
 	handlers ~= Handler(r"^updates?$", &updateHandler);
+
+	auto apiMatch = match(fieldMap["__path__"], regex(r"^api(/|$)", "i"));
+	if(!apiMatch.empty()) {
+		string headers = "Content-type: application/json\n";
+		headers ~= "Cache-Control: max-age=" ~ to!string(60 * 60 * 8) ~ "\n";
+
+		string res = "{" ~ apiHandler(fieldMap["__path__"], headers) ~ 
+			",\"oct\":" ~
+				to!string((TickDuration.currSystemTick() - start).msecs()) ~
+			"}";
+		writeDocument(res, headers);
+		return;
+	}
 
 	try {
 		// create html tag
@@ -407,7 +420,7 @@ void main(string[] args) {
 		mHTML ~= mBody;
 
 		if(!headers.length)
-			headers = "Cache-control: max-age=" ~ to!string(60 * 60 * 8) ~ "\n";
+			headers = "Cache-Control: max-age=" ~ to!string(60 * 60 * 8) ~ "\n";
 		headers ~= "Content-type: text/html\n";
 
 		writeDocument(
