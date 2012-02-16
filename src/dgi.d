@@ -24,6 +24,8 @@ static const string FAVICON_ICO_FILE = "favicon.ico";
 
 static const string CSS_FILE = "style.css";
 static const string JS_FILE = "js/main.js";
+static const string JS_DIR = "js/";
+static const string JS_MAIN = "_";
 static const string JQUERY_FILE = "js/jquery-1.6.2.min.js";
 static const string JQUERYUI_FILE = "js/jquery-ui-1.8.14.custom.min.js";
 static const string JQUERYCSS_FILE = "css/jac/jquery-ui-1.8.14.custom.css";
@@ -397,6 +399,24 @@ void main(string[] args) {
 				mStyle.tag.attr["type"] = "text/css";
 				mStyle.tag.attr["href"] = URL_BASE ~ CSS_FILE;
 			mHead ~= mStyle;
+			string[] pathCompennts = split(fieldMap["__path__"], "/");
+			string path;
+			for(int i = 0; i <= pathCompennts.length; ++i) {
+				string here = JS_DIR;
+				if(i == 0)
+					here ~= JS_MAIN;
+				else
+					here ~= join(pathCompennts[0..i], "/");
+				here ~= ".js";
+				mHTML ~= new Comment("here[" ~ to!string(i) ~ "]: " ~ here);
+
+				if(exists(here)) {
+					Element mLocalJS = new Element("script", " ");
+						mLocalJS.tag.attr["type"] = "text/javascript";
+						mLocalJS.tag.attr["src"] = URL_BASE ~ here;
+					mHead ~= mLocalJS;
+				}
+			}
 			Element mJS = new Element("script", " ");
 				mJS.tag.attr["type"] = "text/javascript";
 				mJS.tag.attr["src"] = URL_BASE ~ JS_FILE;
