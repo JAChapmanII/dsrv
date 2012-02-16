@@ -179,6 +179,8 @@ string getContents(string[] args) { // {{{
 		if(startsWith(f, file)) {
 			string[] fp = split(f, "/");
 			fp = fp[args.length - 2..$];
+			if(fp.length == 0)
+				continue;
 			string p = fp[0];
 			if(fp.length > 1)
 				p ~= "/";
@@ -190,7 +192,7 @@ string getContents(string[] args) { // {{{
 	} // }}}
 	// if we didn't find any matching directories
 	if(dlist == "[")
-		return res ~ ",\"error\":\"directory not found\"";
+		return res ~ ",\"error\":\"file/directory not found\"";
 
 	// otherwise we return the directory contents
 	dlist = dlist[0..$-1] ~ "]";
