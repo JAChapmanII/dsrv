@@ -75,33 +75,51 @@ string getStatus(string s) {
 }
 
 // return the repositories that use the specified language, or all
-string getCLang(string[] args) {
+string getCLang(string[] args) { // {{{
 	Repository[] repos = Repository.repositories;
 	// if there aren't any, return an error
 	if(repos.empty)
 		return "\"error\":\"no repositories\"";
 
+	if(args.length == 0) {
+		string llist = "[";
+		bool[string] added;
+		foreach(r; repos) {
+			if(!(r.language in added)) {
+				llist ~= "\"" ~ r.language ~ "\",";
+				added[r.language] = true;
+			}
+		}
+		llist = llist[0..$-1] ~ "]";
+		return "\"languages\":" ~ llist;
+	}
+
 	// paste the names together into a json array
 	string rlist = "[";
 	foreach(r; repos) {
-		// the user wants all the repositories
-		if(args.length == 0)
-				rlist ~= toJSON(r) ~ ",";
 		// the user wants a specific language
-		else if(equalsIgnoreCase(r.language, args[0]))
+		if(equalsIgnoreCase(r.language, args[0]))
 				rlist ~= toJSON(r) ~ ",";
 	}
 	if(rlist == "[")
 		return "\"error\":\"no repositories in that language\"";
 	rlist = rlist[0..$-1] ~ "]";
 	return "\"contents\":" ~ rlist;
-}
+} // }}}
 
 // return the contents of something code-wise
 string getContents(string[] args) { // {{{
+	Repository[] repositories = Repository.repositories;
+	if(repositories.length == 0)
+		return "\"error\":\"no repositories\"";
+
 	// return the list of repositories
 	if(args.length == 0) { // {{{
-		return getCLang(args);
+		string rlist = "[";
+		foreach(r; repositories)
+			rlist ~= "\"" ~ r.name ~ "\",";
+		rlist = rlist[0..$-1] ~ "]";
+		return "\"contents\":" ~ rlist;
 	} // }}}
 
 	// if we're here, we at least have a repository name
@@ -113,6 +131,9 @@ string getContents(string[] args) { // {{{
 	if(trepo is null)
 		return res ~ ",\"error\":\"no repository by than name\"";
 
+	// switch out simple name with actual object
+	res = "\"repository\":" ~ toJSON(trepo);
+
 	// if there are no more args, we should return the list of branches
 	if(args.length == 1) { // {{{
 		// paste the branch names into a json array
@@ -120,6 +141,8 @@ string getContents(string[] args) { // {{{
 		string[] branches = trepo.branches;
 		foreach(b; branches)
 			blist ~= "\"" ~ b ~ "\",";
+		if(blist == "[")
+			return res ~ ",\"error\":\"no branches\"";
 		blist = blist[0..$-1] ~ "]";
 		return res ~ ",\"contents\":" ~ blist;
 	} // }}}
@@ -153,7 +176,7 @@ string getContents(string[] args) { // {{{
 				placed[p] = true;
 			}
 		}
-		return res ~ ",\"files\":" ~ farray[0..$-1] ~ "]";
+		return res ~ ",\"contents\":" ~ farray[0..$-1] ~ "]";
 	} // }}}
 
 	// otherwise we're looking for a specific file/directory
