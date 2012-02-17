@@ -147,12 +147,23 @@ string getContents(string[] args) { // {{{
 		return res ~ ",\"contents\":" ~ blist;
 	} // }}}
 
+	string[] branches = trepo.branches;
 	// if we're here, then we got a branch name too
 	string branch = args[1];
 	res ~= ",\"branch\":\"" ~ branch ~ "\"";
 
+	bool found;
+	foreach(b; branches)
+		if(b == branch)
+			found = true;
+	if(!found)
+		return res ~ ",\"error\":\"branch does not exist\"";
+
 	// get the files TODO: this is master branch only...
-	string[] files = trepo.files;
+	string[] files = trepo.files(branch);
+
+	if(files.length == 0)
+		return res ~ ",\"error\":\"branch contains no files\"";
 
 	// if they just want a file list
 	if(args.length == 2) { // {{{
