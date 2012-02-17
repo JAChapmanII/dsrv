@@ -204,6 +204,9 @@ string getContents(string[] args) { // {{{
 		}
 	} // }}}
 
+	// we're looking for a directory
+	file ~= "/";
+
 	// look for directories to list instead
 	string dlist = "[";
 	bool[string] placed;
