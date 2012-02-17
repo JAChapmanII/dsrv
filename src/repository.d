@@ -87,14 +87,18 @@ class Repository {
 
 		// TODO: other branches
 		// return the list of files in this repository
-		string[] files() { // {{{
+		string[] files(string branch = "") { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
+
+			if(!branch.length)
+				branch = this.defaultBranch;
+
 			string r;
 			try {
 				string cwd = getcwd();
 				chdir(REPOS_DIR ~ "/" ~ this._name);
-				r = shell("git ls-tree -r -z --name-only master");
+				r = shell("git ls-tree -r -z --name-only " ~ branch);
 				chdir(cwd);
 			} catch(Exception e) {
 				return null;
