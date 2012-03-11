@@ -133,9 +133,6 @@ function generatePathDiv(path) {
 	var ppieces = path.split("/");
 	var bp = "";
 	for(var i = 0; i < ppieces.length; ++i) {
-		//var sep = document.createElement("p");
-		//sep.innerHTML = " / ";
-		//pathDiv.appendChild(sep);
 		pathDiv.appendChild(document.createTextNode(" / "));
 
 		bp += ppieces[i];
