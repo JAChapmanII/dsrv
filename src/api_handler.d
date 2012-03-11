@@ -20,8 +20,8 @@ static const int HASH_LENGTH = 40;
 
 bool equalsIgnoreCase(string a, string b) {
 	// TODO: these are deprecated... update compiler?
-	string la = tolower!string(a);
-	string lb = tolower!string(b);
+	string la = toLower!string(a);
+	string lb = toLower!string(b);
 	return la == lb;
 }
 
@@ -237,7 +237,7 @@ string getContents(string[] args) { // {{{
 } // }}}
 
 // return information about commits or a commit
-string getCommit(string[] args) {
+string getCommit(string[] args) { // {{{
 	if(args.length < 2) {
 		return "\"error\":\"" ~
 			"repository, branch, [, limit|commit] args must be given" ~ "\"";
@@ -302,6 +302,49 @@ string getCommit(string[] args) {
 	}
 
 	return res ~ ",\"error\":\"commit not found\"";
+} // }}}
+
+string getFile(string[] args) {
+	if(args.length < 3) {
+		return "\"error\":\"" ~
+			"repository, branch, [path]/file args must be given" ~ "\"";
+	}
+
+	string repo = args[0], branch = args[1];
+	string res = "\"repository\":\"" ~ repo ~ "\",\"branch\":\"" ~ branch ~ "\"";
+
+	Repository trepo = Repository.repository(repo);
+	if(trepo is null) {
+		return res ~ ",\"error\":\"no repository by that name\"";
+	}
+	string[] branches = trepo.branches;
+	bool found;
+	foreach(b; branches)
+		if(b == branch)
+			found = true;
+	if(!found) {
+		return res ~ ",\"error\":\"branch not found\"";
+	}
+
+	string file = join(args[2..$], "/");
+	res ~= ",\"file\":\"" ~ file ~ "\"";
+
+	// look for files literally named the argument
+	foreach(f; trepo.files) { // {{{
+		// we found it
+		if(f == file) {
+			string contents = jsonEscape(trepo.getFile(file));
+			// append the file contents
+			res ~= ",\"contents\":\""~ contents ~ "\"";
+			Repository.Commit[] lastCommits = trepo.commitsToFile(file, branch, 1);
+			if((lastCommits is null) || (lastCommits.length < 1))
+				return res ~= ",\"error\":\"could not get commit to file\"";
+			res ~= ",\"commit\":" ~ toJSON(lastCommits[0]);
+			return res;
+		}
+	} // }}}
+
+	return res ~= ",\"error\":\"file is nonexistant or not file\"";
 }
 
 string apiHandler(string URL, ref string headers) {
@@ -309,8 +352,16 @@ string apiHandler(string URL, ref string headers) {
 	foreach(field; tufields)
 		if(!field.empty)
 			ufields ~= field;
+	string[] functions = [ "status", "cat", "clang", "commit", "file" ];
 	if((ufields.length == 1) || (ufields[1].length == 0)) {
-		return "\"api-functions\":[\"status\",\"cat\",\"clang\",\"commit\"]";
+		string fs = "[";
+		for(int i = 0; i < functions.length; ++i) {
+			fs ~= "\"" ~ functions[i] ~ "\"";
+			if(i != functions.length - 1)
+				fs ~= ",";
+		}
+		fs ~= "]";
+		return "\"api-functions\":" ~ fs;
 	}
 	switch(ufields[1]) {
 		case "status":
@@ -324,6 +375,11 @@ string apiHandler(string URL, ref string headers) {
 			return getCLang(ufields[2..$]);
 		case "commit":
 			return getCommit(ufields[2..$]);
+		// TODO: how to handle?
+		//case "raw":
+			//return getRaw(ufields[2..$]);
+		case "file":
+			return getFile(ufields[2..$]);
 		default:
 			return "\"error\":\"that is not an API function\"";
 	}
