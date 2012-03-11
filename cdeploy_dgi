@@ -1,8 +1,0 @@
-#!/bin/bash
-
-cd ~
-echo "Exctracting..."
-tar xf dgi.tar.xz
-mv bin/dgi http/j.cgi
-rm dgi.tar.xz
-
