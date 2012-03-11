@@ -14,51 +14,126 @@ function getElementsByClassName(className, tagType) {
 	return matches;
 }
 
-function jsonToPreContent(str) {
-	str = str.replace(/\n/g, '\n');
-	return str;
+function find(array, value) {
+	for(var i = 0; i < array.length; ++i)
+		if(array[i] == value)
+			return i;
+	return -1;
 }
 
-function fillReadme(readmeBox, readme) {
-	if(!readmeBoxen || !readme)
+function getArgument(index) { // {{{
+	var parts = document.URL.split("/");
+	var codeLoc = find(parts, "code");
+	if(codeLoc == -1)
+		return null;
+	if(parts.size <= codeLoc + index)
+		return null;
+	return parts[codeLoc + index];
+} // }}}
+function getRepository() {
+	return getArgument(1);
+}
+function getCommand() {
+	return getArgument(2);
+}
+
+function getLanguage() {
+	return getElementsByClassName("dsrv.language")[0].title;
+}
+function getBranch() {
+	return getElementsByClassName("dsrv.branch")[0].title;
+}
+
+
+
+// Undo the escaping done by dsrv to files stored in a json string
+function jsonUnEscape(str) { // {{{
+	str = str.replace(/\"/g, '"');
+	str = str.replace(/\t/g, '\t');
+	str = str.replace(/\n/g, '\n');
+	// TODO: actually replaces literal \\ ?
+	str = str.replace(/\\/g, '\\');
+	return str;
+} // }}}
+
+// Fill in a README box with a readme, display error if not silentFail
+function fillReadme(readmeBox, readme, silentFail) { // {{{
+	if(!readmeBox || !readme)
 		return;
 	if(readme.error) {
-		var errorComment = document.createElement("p");
-		errorComment.innerHTML = "Error retrieving README: " + readme.error;
-		readmeBox.parentNode.insertBefore(errorComment, readmeBox.nextSibling);
-		//readmeBox.style.visiblity = 'hidden';
-		//readmeBox.style.display = 'none';
+		if(silentFail) {
+			readmeBox.style.display = 'none';
+		} else {
+			var errorComment = document.createElement("p");
+			errorComment.innerHTML = "Error retrieving README: " + readme.error;
+			readmeBox.parentNode.insertBefore(errorComment, readmeBox.nextSibling);
+		}
 		return;
 	}
 	var contentPre = document.createElement("pre");
-	contentPre.innerHTML = jsonToPreContent(readme.contents);
+	contentPre.innerHTML = jsonUnEscape(readme.contents);
 	contentPre.className = "readme";
 	readmeBox.parentNode.insertBefore(contentPre, readmeBox.nextSibling);
 	var readmeP = document.createElement("p");
 	readmeP.innerHTML = "README:";
 	readmeBox.parentNode.insertBefore(readmeP, contentPre);
-}
+} // }}}
 
-function code() {
-	readmeBoxen = getElementsByClassName("dsrv.readme", "div");
+// Find all divs which should be filled with README files, attempt to fill them
+function handleREADMEs() { // {{{
+	var readmeBoxen = getElementsByClassName("dsrv.readme", "div");
 	if(readmeBoxen.length > 0) {
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', apiURL + "cat/" + readmeBoxen[0].title + "/master/README", true);
+		var repository = getRepository(), branch = getBranch(), path = "";
+		var request = repository + "/" + branch + "/" + path + "/README";
+		if(path.length == 0)
+			request = repository + "/" + branch + "/README";
+
+		xhr.open('POST', apiURL + "cat/" + request, true);
 		xhr.onreadystatechange = function(xhrEvent) {
 			if(xhr.readyState != 4)
 				return;
 			if(xhr.status != 200)
 				return;
 
+			var readme = JSON.parse(xhr.responseText, false);
 			for(var i = 0; i < readmeBoxen.length; ++i)
-				fillReadme(readmeBoxen[i], JSON.parse(xhr.responseText, false));
+				fillReadme(readmeBoxen[i], readme, (path.length != 0));
 		};
 		xhr.send(null);
 	}
+} // }}}
 
-	fileListBoxen = getElementsByClassName("fileList", "div");
-	for(var i = 0; i < fileListBoxen.length; ++i)
-		fileListBoxen[i].style.visibilty = 'hidden';
+function handleFileLists() { // {{{
+	var fileListBoxen = getElementsByClassName("dsrv.fileList", "div");
+	if(fileListBoxen.length > 0) {
+		var xhr = new XMLHttpRequest();
+		var repository = fileListBoxen[0].title, branch = "master", path = "";
+		var request = repository + "/" + branch + "/" + path + "/README";
+		if(path.length == 0)
+			request = repository + "/" + branch + "/README";
+
+		xhr.open('POST', apiURL + "cat/" + request, true);
+		xhr.onreadystatechange = function(xhrEvent) {
+			if(xhr.readyState != 4)
+				return;
+			if(xhr.status != 200)
+				return;
+
+			readme = JSON.parse(xhr.responseText, false);
+			for(var i = 0; i < fileListBoxen.length; ++i)
+				fileListBoxen[i].style.visibilty = 'hidden';
+		};
+		xhr.send(null);
+	}
+} // }}}
+
+function code() {
+	handleREADMEs();
+	handleFileLists();
+	// TODO: handle branches
+	// TODO: commit listing
+	// TODO: diff viewer
 
 	//alert(document.URL);
 }
