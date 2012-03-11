@@ -40,8 +40,6 @@ function _() {
 		}
 	};
 	xhr.send(null);
-
-
 }
 modules.push(_);
 
