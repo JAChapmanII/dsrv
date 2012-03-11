@@ -329,22 +329,13 @@ string getFile(string[] args) {
 	string file = join(args[2..$], "/");
 	res ~= ",\"file\":\"" ~ file ~ "\"";
 
-	// look for files literally named the argument
-	foreach(f; trepo.files) { // {{{
-		// we found it
-		if(f == file) {
-			string contents = jsonEscape(trepo.getFile(file));
-			// append the file contents
-			res ~= ",\"contents\":\""~ contents ~ "\"";
-			Repository.Commit[] lastCommits = trepo.commitsToFile(file, branch, 1);
-			if((lastCommits is null) || (lastCommits.length < 1))
-				return res ~= ",\"error\":\"could not get commit to file\"";
-			res ~= ",\"commit\":" ~ toJSON(lastCommits[0]);
-			return res;
-		}
-	} // }}}
+	Repository.Commit[] lastCommits = trepo.commitsToFile(file, branch, 1);
+	if((lastCommits is null) || (lastCommits.length < 1))
+		return res ~= ",\"error\":\"could not get commit to file\"";
+	res ~= ",\"commit\":" ~ toJSON(lastCommits[0]);
+	return res;
 
-	return res ~= ",\"error\":\"file is nonexistant or not file\"";
+	//return res ~= ",\"error\":\"file is nonexistant or not file\"";
 }
 
 string apiHandler(string URL, ref string headers) {
