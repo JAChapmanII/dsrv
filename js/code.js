@@ -53,6 +53,12 @@ function getPath() {
 }
 
 
+function htmlEscape(str) {
+	str = str.toString();
+	str = str.replace(/</g, "&lt;");
+	str = str.replace(/>/g, "&gt;");
+	return str;
+}
 
 // Undo the escaping done by dsrv to files stored in a json string
 function jsonUnEscape(str) { // {{{
@@ -145,20 +151,87 @@ function generatePathDiv(path) {
 	return pathDiv;
 }
 
+function fillFileListRow(row, file, fname) {
+	console.log("fillFileListRow");
+	//var tr = document.createElement("tr");
+
+	var linkTD = document.createElement("td");
+	var link = document.createElement("a");
+	var path = getPath();
+	link.href = "#" + path + fname;
+	link.innerHTML = fname;
+	link.onclick = fileViewerClick;
+	linkTD.appendChild(link);
+
+	var ageTD = document.createElement("td");
+	var commitStringTD = document.createElement("td");
+	if(file.error) {
+		ageTD.innerHTML = "error";
+		commitStringTD.innerHTML = "error: " + file.error;
+	} else {
+		ageTD.innerHTML = file.commit.relDate;
+		commitStringTD.innerHTML = file.commit.subject;
+	}
+
+	row.innerHTML = "";
+	row.appendChild(linkTD);
+	row.appendChild(ageTD);
+	row.appendChild(commitStringTD);
+}
+
+function callbackOnRow(row, fname) {
+	var xhr = new XMLHttpRequest();
+	var repository = getRepository(), branch = getBranch(), path = getPath();
+	var request = repository + "/" + branch + "/" + path;
+	if(path[path.length - 1] != "/");
+		request += "/";
+	request += fname;
+
+	xhr.open('POST', apiURL + "file/" + request, true);
+	xhr.onreadystatechange = function(xhrEvent) {
+		if(xhr.readyState != 4)
+			return;
+		if(xhr.status != 200)
+			return;
+
+		file = JSON.parse(xhr.responseText, false);
+		console.log("callbackOnRow, file.file: " + file.file);
+		fillFileListRow(row, file, fname);
+	};
+	xhr.send(null);
+}
+
 function generateFileListTable(files, repository, branch) {
 	var path = getPath();
 	var table = document.createElement("table");
+	var trs = [];
 	for(var i = 0; i < files.length; ++i) {
 		var tr = document.createElement("tr");
+		trs.push(tr);
+
 		var linkTD = document.createElement("td");
 		var link = document.createElement("a");
-		link.href = "#" + path + files[i];
+		link.href = "#" + path + "/" + files[i];
 		link.innerHTML = files[i];
 		link.onclick = fileViewerClick;
 		linkTD.appendChild(link);
+
 		tr.appendChild(linkTD);
+
+		var ageTD = document.createElement("td");
+		ageTD.innerHTML = "...";
+		tr.appendChild(ageTD);
+
+		var commitStringTD = document.createElement("td");
+		commitStringTD.innerHTML = "...";
+		tr.appendChild(commitStringTD);
+
 		table.appendChild(tr);
 	}
+
+	for(var i = 0; i < trs.length; ++i)
+		callbackOnRow(trs[i], files[i]);
+
 	return table;
 }
 
@@ -178,7 +251,7 @@ function fillFileList(fileList, repository) {
 				repository.contents, repository.name, repository.branch));
 	} else {
 		var contentPre = document.createElement("pre");
-		contentPre.innerHTML = jsonUnEscape(repository.contents);
+		contentPre.innerHTML = htmlEscape(jsonUnEscape(repository.contents));
 		contentPre.className = "readme";
 		fileList.appendChild(contentPre);
 	}
