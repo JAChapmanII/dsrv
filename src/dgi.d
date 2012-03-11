@@ -34,7 +34,8 @@ static const int MAX_FILE_SIZE = 1024 * 1024 * 32;
 
 // Compact a string containing valid CSS
 string compactifyCSS(string CSS) { //{{{
-	CSS = replace(CSS, regex(r"\/\*([^\*]*[^\/])*\*\/", "g"), "");
+	// remove comments
+	//CSS = replace(CSS, regex(r"\/\*([^\*]*[^\/])*\*\/", "g"), "");
 
 	CSS = replace(CSS, regex(r"^\s+"), "");
 	CSS = replace(CSS, regex(r"\s+$"), "");
@@ -85,8 +86,12 @@ static void generateFieldMap() { //{{{
 string getCSS() { //{{{
 	string CSS = "";
 	if(isFile(CSS_FILE)) {
-		foreach(line; splitlines(readText(CSS_FILE)))
+		CSS = readText(CSS_FILE);
+		/+
+		string[] lines = splitLines(readText(CSS_FILE));
+		foreach(line; lines)
 			CSS ~= line ~ "\n";
+		+/
 	}
 	CSS = compactifyCSS(CSS);
 	return CSS;
@@ -203,7 +208,8 @@ Element getHeader(string URL, ref string headers) { //{{{
 	if(!startsWith(fieldMap["__path__"], "code")) {
 		Element spacer = new Document("<p>&#160;</p>");
 			spacer.tag.attr["style"] = "line-height:0;clear:both";
-		fheader ~= spacer;
+		//fheader ~= spacer;
+		fheader ~= new Element("p", " ");
 
 		Element mStatus = new Element("div");
 			mStatus.tag.attr["id"] = "status-box";

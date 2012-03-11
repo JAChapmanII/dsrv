@@ -69,7 +69,7 @@ class Repository {
 			Repository[] repositories;
 			if(!isFile(REPOS_FILE))
 				return repositories;
-			foreach(line; splitlines(readText(REPOS_FILE))) {
+			foreach(line; splitLines(readText(REPOS_FILE))) {
 				string[] fields = split(line, "|");
 				string[] names = split(fields[2], ",");
 				string rdir = REPOS_DIR ~ "/" ~ names[0];
@@ -203,7 +203,8 @@ class Repository {
 			return diff;
 		}
 
-		Commit[] commitsToFile(string fName, string branch = "", int max = 0) {
+		// Return the last max commits to the passed file in branch
+		Commit[] commitsToFile(string fName, string branch = "", int max = 0) { // {{{
 			if(!isDir(REPOS_DIR))
 				return null;
 
@@ -235,7 +236,7 @@ class Repository {
 				}
 			}
 			return commits;
-		}
+		} // }}}
 
 		string language() {
 			return this._language;

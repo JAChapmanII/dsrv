@@ -30,7 +30,7 @@ class Update {
 			Update[] updates;
 			if(!isFile(UDATES_FILE))
 				return updates;
-			foreach(line; splitlines(readText(UDATES_FILE))) {
+			foreach(line; splitLines(readText(UDATES_FILE))) {
 				string[] fields = std.string.split(line, "|");
 				updates ~= new Update(
 						to!int(fields[0]), fields[1], fields[2], fields[3]);

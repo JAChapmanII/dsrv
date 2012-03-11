@@ -28,7 +28,7 @@ Element dumpFile(string filename, string dclass = "me") {
 		return new Element("p", "File \"" ~ filename ~ "\" does not exist");
 
 	string file = "<div class=\"" ~ dclass ~ "\">";
-	foreach(line; splitlines(readText(filename)))
+	foreach(line; splitLines(readText(filename)))
 		file ~= line;
 	file ~= "</div>";
 
