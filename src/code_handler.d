@@ -120,6 +120,11 @@ Element codeHandler(string URL, ref string headers) {
 					mBody ~= repositoryListingHandler(repo, args);
 					mBody ~= new Element("p");
 
+					Element mREADME = new Element("div", " ");
+						mREADME.tag.attr["class"] = "dsrv.readme";
+						mREADME.tag.attr["title"] = repo.name;
+					mBody ~= mREADME;
+					/+
 					foreach(f; files) {
 						if((toupper(f) == "README") || (tolower(f) == "readme.txt")) {
 							mBody ~= new Element("p", "README:");
@@ -128,6 +133,7 @@ Element codeHandler(string URL, ref string headers) {
 							mBody ~= readme;
 						}
 					}
+					+/
 				}
 			}
 		}
@@ -294,7 +300,13 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 	string[] files = repository.files;
 	if(!files.length)
 		return null;
-	
+
+	Element fileList = new Element("div", " ");
+	fileList.tag.attr["class"] = "fileList";
+	fileList.tag.attr["title"] = repository.name;
+	return fileList;
+
+	/+
 	string branch;
 	if(!args.length)
 		branch = repository.defaultBranch;
@@ -343,6 +355,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 	}
 
 	return fileListing;
+	+/
 }
 
 Element colorizeDiff(string diff) {
