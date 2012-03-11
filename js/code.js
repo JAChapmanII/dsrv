@@ -80,6 +80,7 @@ function fillReadme(readmeBox, readme, silentFail) { // {{{
 		}
 		return;
 	}
+	readmeBox.style.display = 'block';
 	var readmeP = document.createElement("p");
 	readmeP.innerHTML = "README:";
 	readmeBox.appendChild(readmeP);
