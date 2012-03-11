@@ -100,4 +100,5 @@ phony:
 
 clean:
 	rm -f $(BINDIR)/$(BIN) $(BINDIR)/$(BIN).old $(OBJDIR)/*.o
+	rm -f $(BINDIR)/$(BIN).bspatch $(BINDIR)/$(BIN).old.md5sum $(BIN).tar.xz
 
