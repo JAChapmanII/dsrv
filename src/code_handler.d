@@ -78,6 +78,7 @@ Element codeHandler(string URL, ref string headers) {
 				mBody ~= new Element("p", "No repository by that name");
 				mBody ~= new Comment(rName);
 			} else {
+				mBody ~= getRepositoryTags(repo);
 				mBody ~= new Element("p", repo.name ~ " -- " ~ repo.description);
 				switch(command) {
 					case "commits":
@@ -124,16 +125,6 @@ Element codeHandler(string URL, ref string headers) {
 						mREADME.tag.attr["class"] = "dsrv.readme";
 						mREADME.tag.attr["title"] = repo.name;
 					mBody ~= mREADME;
-					/+
-					foreach(f; files) {
-						if((toupper(f) == "README") || (tolower(f) == "readme.txt")) {
-							mBody ~= new Element("p", "README:");
-							Element readme = new Element("pre", repo.getFile(f));
-								readme.tag.attr["class"] = "readme";
-							mBody ~= readme;
-						}
-					}
-					+/
 				}
 			}
 		}
@@ -141,6 +132,48 @@ Element codeHandler(string URL, ref string headers) {
 
 	return mMColumn;
 }
+
+Element getRepositoryTags(Repository repository) {
+	Element tagDiv = new Element("div");
+		tagDiv.tag.attr["display"] = "none";
+		tagDiv.tag.attr["class"] = "dsrv.tags";
+	Element nameDiv = new Element("div", " ");
+		nameDiv.tag.attr["display"] = "none";
+		nameDiv.tag.attr["class"] = "dsrv.name";
+		nameDiv.tag.attr["title"] = repository.name;
+	tagDiv ~= nameDiv;
+	foreach(alternateName; repository.alternateNames) {
+		Element alternateNameDiv = new Element("div", " ");
+			alternateNameDiv.tag.attr["display"] = "none";
+			alternateNameDiv.tag.attr["class"] = "dsrv.alternateName";
+			alternateNameDiv.tag.attr["title"] = alternateName;
+		tagDiv ~= alternateNameDiv;
+	}
+	Element languageDiv = new Element("div", " ");
+		languageDiv.tag.attr["display"] = "none";
+		languageDiv.tag.attr["class"] = "dsrv.language";
+		languageDiv.tag.attr["title"] = repository.language;
+	tagDiv ~= languageDiv;
+	Element descriptionDiv = new Element("div", " ");
+		descriptionDiv.tag.attr["display"] = "none";
+		descriptionDiv.tag.attr["class"] = "dsrv.description";
+		descriptionDiv.tag.attr["title"] = repository.description;
+	tagDiv ~= descriptionDiv;
+	foreach(branch; repository.branches) {
+		Element branchDiv = new Element("div", " ");
+			branchDiv.tag.attr["display"] = "none";
+			branchDiv.tag.attr["class"] = "dsrv.branch";
+			branchDiv.tag.attr["title"] = branch;
+		tagDiv ~= branchDiv;
+	}
+	Element defaultBranchDiv = new Element("div", " ");
+		defaultBranchDiv.tag.attr["display"] = "none";
+		defaultBranchDiv.tag.attr["class"] = "dsrv.defaultBranch";
+		defaultBranchDiv.tag.attr["title"] = repository.defaultBranch;
+	tagDiv ~= defaultBranchDiv;
+	return tagDiv;
+}
+
 
 Element getRecentlyModified(Repository[] repos) {
 	Element mBody = new Element("div");
@@ -302,7 +335,7 @@ Element repositoryListingHandler(Repository repository, string[] args) {
 		return null;
 
 	Element fileList = new Element("div", " ");
-	fileList.tag.attr["class"] = "fileList";
+	fileList.tag.attr["class"] = "dsrv.fileList";
 	fileList.tag.attr["title"] = repository.name;
 	return fileList;
 
