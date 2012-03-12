@@ -75,7 +75,7 @@ function jsonUnEscape(str) { // {{{
 function fillReadme(readmeBox, readme, silentFail) { // {{{
 	if(!readmeBox || !readme)
 		return;
-	readme.innerHTML = "";
+	readmeBox.innerHTML = "";
 	if(readme.error) {
 		if(silentFail) {
 			readmeBox.style.display = 'none';
